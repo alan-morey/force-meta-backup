@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <property file="build.properties"/>
+  <property environment="env"/>
+  <property name="build.dir" value="build" />
+
+  <target name="-setUp">
+    <mkdir dir="${build.dir}" />
+  </target>
+
+  <target name="-setUpMetadataDir" depends="-setUp">
+    <property name="build.metadata.dir" value="${build.dir}/metadata" />
+    <mkdir dir="${build.metadata.dir}" />
+  </target>
+</project>

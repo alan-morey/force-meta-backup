@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Force.com Metadata Backup" basedir="." xmlns:sf="antlib:com.salesforce">
+  
+  <import file="ant-includes/setup-target.xml" />
+  <import file="ant-includes/list-targets.xml" />
+  <import file="ant-includes/bulk-retrievable-target.xml" />
+
+  <target name="clean">
+    <delete dir="${build.dir}" />
+  </target>
+
+  <target name="generatePackageXmlAndBuildXml" depends="-setUp">
+    <exec executable="force-meta-backup.groovy" resolveexecutable="true" />
+  </target>
+
+  <target name="bulkRetrieveFolders" depends="generatePackageXmlAndBuildXml">
+    <ant antfile="build/folders-build.xml" />
+  </target>
+
+  <target name="retrieveMiscMetadata" depends="generatePackageXmlAndBuildXml,-setUpMetadataDir">
+    <sf:retrieve unpackaged="build/misc-package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+  </target>
+
+  <target name="backupMetadata" depends="bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
+  </target>
+
+</project>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:sf="antlib:com.salesforce">
+
+  <target name="-setUpLists" depends="-setUp">
+    <property name="build.lists.dir" value="${build.dir}/lists" />
+    <mkdir dir="${build.lists.dir}" />
+  </target>
+
+  <target name="describeMetadata" depends="-setUp">
+    <sf:describeMetadata resultFilePath="${build.dir}/describe.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+
+  <target name="listAccountOwnerSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="AccountOwnerSharingRule" resultFilePath="${build.lists.dir}/AccountOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listAccountCriteriaBasedSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="AccountCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/AccountCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listAccountTerritorySharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="AccountTerritorySharingRule" resultFilePath="${build.lists.dir}/AccountTerritorySharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listAnalyticSnapshot" depends="-setUpLists">
+    <sf:listMetadata metadataType="AnalyticSnapshot" resultFilePath="${build.lists.dir}/AnalyticSnapshot.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listApexClass" depends="-setUpLists">
+    <sf:listMetadata metadataType="ApexClass" resultFilePath="${build.lists.dir}/ApexClass.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listApexComponent" depends="-setUpLists">
+    <sf:listMetadata metadataType="ApexComponent" resultFilePath="${build.lists.dir}/ApexComponent.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listApexPage" depends="-setUpLists">
+    <sf:listMetadata metadataType="ApexPage" resultFilePath="${build.lists.dir}/ApexPage.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listApexTrigger" depends="-setUpLists">
+    <sf:listMetadata metadataType="ApexTrigger" resultFilePath="${build.lists.dir}/ApexTrigger.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCampaignOwnerSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="CampaignOwnerSharingRule" resultFilePath="${build.lists.dir}/CampaignOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCampaignCriteriaBasedSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="CampaignCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/CampaignCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCaseOwnerSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="CaseOwnerSharingRule" resultFilePath="${build.lists.dir}/CaseOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCaseCriteriaBasedSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="CaseCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/CaseCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listContactOwnerSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="ContactOwnerSharingRule" resultFilePath="${build.lists.dir}/ContactOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listContactCriteriaBasedSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="ContactCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/ContactCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomApplication" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomApplication" resultFilePath="${build.lists.dir}/CustomApplication.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomApplicationComponent" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomApplicationComponent" resultFilePath="${build.lists.dir}/CustomApplicationComponent.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomLabel" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomLabel" resultFilePath="${build.lists.dir}/CustomLabel.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomField" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomField" resultFilePath="${build.lists.dir}/CustomField.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listBusinessProcess" depends="-setUpLists">
+    <sf:listMetadata metadataType="BusinessProcess" resultFilePath="${build.lists.dir}/BusinessProcess.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listRecordType" depends="-setUpLists">
+    <sf:listMetadata metadataType="RecordType" resultFilePath="${build.lists.dir}/RecordType.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWebLink" depends="-setUpLists">
+    <sf:listMetadata metadataType="WebLink" resultFilePath="${build.lists.dir}/WebLink.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listValidationRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="ValidationRule" resultFilePath="${build.lists.dir}/ValidationRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listNamedFilter" depends="-setUpLists">
+    <sf:listMetadata metadataType="NamedFilter" resultFilePath="${build.lists.dir}/NamedFilter.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listSharingReason" depends="-setUpLists">
+    <sf:listMetadata metadataType="SharingReason" resultFilePath="${build.lists.dir}/SharingReason.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listListView" depends="-setUpLists">
+    <sf:listMetadata metadataType="ListView" resultFilePath="${build.lists.dir}/ListView.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listFieldSet" depends="-setUpLists">
+    <sf:listMetadata metadataType="FieldSet" resultFilePath="${build.lists.dir}/FieldSet.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomObjectSharingRules" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomObjectSharingRules" resultFilePath="${build.lists.dir}/CustomObjectSharingRules.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomObjectTranslation" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomObjectTranslation" resultFilePath="${build.lists.dir}/CustomObjectTranslation.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomPageWebLink" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomPageWebLink" resultFilePath="${build.lists.dir}/CustomPageWebLink.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomSite" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomSite" resultFilePath="${build.lists.dir}/CustomSite.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCustomTab" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomTab" resultFilePath="${build.lists.dir}/CustomTab.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listDashboard" depends="-setUpLists">
+    <sf:listMetadata metadataType="Dashboard" resultFilePath="${build.lists.dir}/Dashboard.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listDataCategoryGroup" depends="-setUpLists">
+    <sf:listMetadata metadataType="DataCategoryGroup" resultFilePath="${build.lists.dir}/DataCategoryGroup.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listDocument" depends="-setUpLists">
+    <sf:listMetadata metadataType="Document" resultFilePath="${build.lists.dir}/Document.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listEmailTemplate" depends="-setUpLists">
+    <sf:listMetadata metadataType="EmailTemplate" resultFilePath="${build.lists.dir}/EmailTemplate.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listEntitlementTemplate" depends="-setUpLists">
+    <sf:listMetadata metadataType="EntitlementTemplate" resultFilePath="${build.lists.dir}/EntitlementTemplate.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listFlow" depends="-setUpLists">
+    <sf:listMetadata metadataType="Flow" resultFilePath="${build.lists.dir}/Flow.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listGroup" depends="-setUpLists">
+    <sf:listMetadata metadataType="Group" resultFilePath="${build.lists.dir}/Group.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listHomePageComponent" depends="-setUpLists">
+    <sf:listMetadata metadataType="HomePageComponent" resultFilePath="${build.lists.dir}/HomePageComponent.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listHomePageLayout" depends="-setUpLists">
+    <sf:listMetadata metadataType="HomePageLayout" resultFilePath="${build.lists.dir}/HomePageLayout.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listLayout" depends="-setUpLists">
+    <sf:listMetadata metadataType="Layout" resultFilePath="${build.lists.dir}/Layout.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listLeadOwnerSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="LeadOwnerSharingRule" resultFilePath="${build.lists.dir}/LeadOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listLeadCriteriaBasedSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="LeadCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/LeadCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listLetterhead" depends="-setUpLists">
+    <sf:listMetadata metadataType="Letterhead" resultFilePath="${build.lists.dir}/Letterhead.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listMobileSettings" depends="-setUpLists">
+    <sf:listMetadata metadataType="MobileSettings" resultFilePath="${build.lists.dir}/MobileSettings.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listOpportunityOwnerSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="OpportunityOwnerSharingRule" resultFilePath="${build.lists.dir}/OpportunityOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listOpportunityCriteriaBasedSharingRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="OpportunityCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/OpportunityCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listPermissionSet" depends="-setUpLists">
+    <sf:listMetadata metadataType="PermissionSet" resultFilePath="${build.lists.dir}/PermissionSet.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listPortal" depends="-setUpLists">
+    <sf:listMetadata metadataType="Portal" resultFilePath="${build.lists.dir}/Portal.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listProfile" depends="-setUpLists">
+    <sf:listMetadata metadataType="Profile" resultFilePath="${build.lists.dir}/Profile.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listQueue" depends="-setUpLists">
+    <sf:listMetadata metadataType="Queue" resultFilePath="${build.lists.dir}/Queue.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listRemoteSiteSetting" depends="-setUpLists">
+    <sf:listMetadata metadataType="RemoteSiteSetting" resultFilePath="${build.lists.dir}/RemoteSiteSetting.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listReport" depends="-setUpLists">
+    <sf:listMetadata metadataType="Report" resultFilePath="${build.lists.dir}/Report.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listReportType" depends="-setUpLists">
+    <sf:listMetadata metadataType="ReportType" resultFilePath="${build.lists.dir}/ReportType.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listRole" depends="-setUpLists">
+    <sf:listMetadata metadataType="Role" resultFilePath="${build.lists.dir}/Role.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listScontrol" depends="-setUpLists">
+    <sf:listMetadata metadataType="Scontrol" resultFilePath="${build.lists.dir}/Scontrol.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listSecuritySettings" depends="-setUpLists">
+    <sf:listMetadata metadataType="SecuritySettings" resultFilePath="${build.lists.dir}/SecuritySettings.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listStaticResource" depends="-setUpLists">
+    <sf:listMetadata metadataType="StaticResource" resultFilePath="${build.lists.dir}/StaticResource.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listTerritory" depends="-setUpLists">
+    <sf:listMetadata metadataType="Territory" resultFilePath="${build.lists.dir}/Territory.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWorkflowFieldUpdate" depends="-setUpLists">
+    <sf:listMetadata metadataType="WorkflowFieldUpdate" resultFilePath="${build.lists.dir}/WorkflowFieldUpdate.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWorkflowTask" depends="-setUpLists">
+    <sf:listMetadata metadataType="WorkflowTask" resultFilePath="${build.lists.dir}/WorkflowTask.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWorkflowAlert" depends="-setUpLists">
+    <sf:listMetadata metadataType="WorkflowAlert" resultFilePath="${build.lists.dir}/WorkflowAlert.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWorkflowSend" depends="-setUpLists">
+    <sf:listMetadata metadataType="WorkflowSend" resultFilePath="${build.lists.dir}/WorkflowSend.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWorkflowOutboundMessage" depends="-setUpLists">
+    <sf:listMetadata metadataType="WorkflowOutboundMessage" resultFilePath="${build.lists.dir}/WorkflowOutboundMessage.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listWorkflowRule" depends="-setUpLists">
+    <sf:listMetadata metadataType="WorkflowRule" resultFilePath="${build.lists.dir}/WorkflowRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="list_All" depends="-setUpLists,listAccountOwnerSharingRule,listAccountCriteriaBasedSharingRule,listAccountTerritorySharingRule,listAnalyticSnapshot,listApexClass,listApexComponent,listApexPage,listApexTrigger,listCampaignOwnerSharingRule,listCampaignCriteriaBasedSharingRule,listCaseOwnerSharingRule,listCaseCriteriaBasedSharingRule,listContactOwnerSharingRule,listContactCriteriaBasedSharingRule,listCustomApplication,listCustomApplicationComponent,listCustomLabel,listCustomField,listBusinessProcess,listRecordType,listWebLink,listValidationRule,listNamedFilter,listSharingReason,listListView,listFieldSet,listCustomObjectSharingRules,listCustomObjectTranslation,listCustomPageWebLink,listCustomSite,listCustomTab,listDashboard,listDataCategoryGroup,listDocument,listEmailTemplate,listEntitlementTemplate,listFlow,listGroup,listHomePageComponent,listHomePageLayout,listLayout,listLeadOwnerSharingRule,listLeadCriteriaBasedSharingRule,listLetterhead,listMobileSettings,listOpportunityOwnerSharingRule,listOpportunityCriteriaBasedSharingRule,listPermissionSet,listPortal,listProfile,listQueue,listRemoteSiteSetting,listReport,listReportType,listRole,listScontrol,listSecuritySettings,listStaticResource,listTerritory,listWorkflowFieldUpdate,listWorkflowTask,listWorkflowAlert,listWorkflowSend,listWorkflowOutboundMessage,listWorkflowRule"/>
+</project>

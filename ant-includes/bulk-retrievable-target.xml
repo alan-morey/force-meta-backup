@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:sf="antlib:com.salesforce">  
+  <target name="bulkRetrievable" depends="-setUpMetadataDir">
+    <sf:bulkRetrieve metadataType="AccountSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="AccountTerritorySharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="ApexClass" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="ApexComponent" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="ApexPage" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="ApexTrigger" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CampaignSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CaseSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="ContactSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomApplication" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomApplicationComponent" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomLabels" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomObject" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomPageWebLink" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomSite" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="CustomTab" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="DataCategoryGroup" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="EntitlementTemplate" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Flow" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Group" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="HomePageComponent" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="HomePageLayout" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Layout" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="MobileSettings" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="OpportunitySharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Portal" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Queue" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="RemoteSiteSetting" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="ReportType" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Role" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Scontrol" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="SecuritySettings" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="StaticResource" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Territory" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Workflow" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+
+    <sf:retrieve unpackaged="package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    
+<!-- Bulk Retrieving does not pull all information that wildcard in package.xml -->
+<!--
+    <sf:bulkRetrieve metadataType="CustomObjectTranslation" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="PermissionSet" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <sf:bulkRetrieve metadataType="Profile" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+-->
+  </target>
+</project>

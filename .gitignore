@@ -1,4 +1,2 @@
-.project
-.settings
-salesforce.schema
-Referenced Packages
+build.properties
+build
