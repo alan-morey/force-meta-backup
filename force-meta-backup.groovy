@@ -19,6 +19,8 @@ import groovy.xml.XmlUtil
 import groovy.util.CliBuilder
 
 class ForceService {
+    public final FORCE_API_VERSION = '27.0'
+
     def forceServiceConnector
 
     ForceService(serverUrl, username, password) {
@@ -82,6 +84,7 @@ class ForceService {
         def numQueries = queries.size
         def isLastQuery =  false
         def index = 0
+        def apiVersion = FORCE_API_VERSION.toDouble()
 
         def fileProperties = []
         while (numQueries > 0 && !isLastQuery) {
@@ -93,7 +96,7 @@ class ForceService {
             }
 
             def requestQueries = queries.subList(start, end) as ListMetadataQuery[]
-            def result = metadataConnection.listMetadata(requestQueries, 26.0)
+            def result = metadataConnection.listMetadata(requestQueries, apiVersion)
 
             if (result != null) {
                 fileProperties.addAll(result.toList())
@@ -160,7 +163,7 @@ class Folders {
                     }
                 }
 
-                version { mkp.yield '26.0' }
+                version { mkp.yield forceService.FORCE_API_VERSION }
             }
         }
 
@@ -358,7 +361,7 @@ class MiscMetadataManifestBuilder {
                     }
                 }
 
-                version { mkp.yield '26.0' }
+                version { mkp.yield forceService.FORCE_API_VERSION }
             }
         }
 
