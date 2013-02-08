@@ -10,6 +10,12 @@
     <sf:describeMetadata resultFilePath="${build.dir}/describe.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
 
+  <!-- com.sforce.ws.SoapFaultException: INVALID_TYPE: Unknown type:ArticleType
+  <target name="listArticleType" depends="-setUpLists">
+    <sf:listMetadata metadataType="ArticleType" resultFilePath="${build.lists.dir}/ArticleType.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  -->
+
   <target name="listAccountOwnerSharingRule" depends="-setUpLists">
     <sf:listMetadata metadataType="AccountOwnerSharingRule" resultFilePath="${build.lists.dir}/AccountOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
@@ -34,6 +40,15 @@
   <target name="listApexTrigger" depends="-setUpLists">
     <sf:listMetadata metadataType="ApexTrigger" resultFilePath="${build.lists.dir}/ApexTrigger.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
+  <target name="listAssignmentRules" depends="-setUpLists">
+    <sf:listMetadata metadataType="AssignmentRules" resultFilePath="${build.lists.dir}/AssignmentRules.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listAuthProvider" depends="-setUpLists">
+    <sf:listMetadata metadataType="AuthProvider" resultFilePath="${build.lists.dir}/AuthProvider.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listAutoResponseRules" depends="-setUpLists">
+    <sf:listMetadata metadataType="AutoResponseRules" resultFilePath="${build.lists.dir}/AutoResponseRules.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
   <target name="listCampaignOwnerSharingRule" depends="-setUpLists">
     <sf:listMetadata metadataType="CampaignOwnerSharingRule" resultFilePath="${build.lists.dir}/CampaignOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
@@ -42,6 +57,9 @@
   </target>
   <target name="listCaseOwnerSharingRule" depends="-setUpLists">
     <sf:listMetadata metadataType="CaseOwnerSharingRule" resultFilePath="${build.lists.dir}/CaseOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCommunity" depends="-setUpLists">
+    <sf:listMetadata metadataType="Community" resultFilePath="${build.lists.dir}/Community.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
   <target name="listCaseCriteriaBasedSharingRule" depends="-setUpLists">
     <sf:listMetadata metadataType="CaseCriteriaBasedSharingRule" resultFilePath="${build.lists.dir}/CaseCriteriaBasedSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
@@ -66,6 +84,9 @@
   </target>
   <target name="listBusinessProcess" depends="-setUpLists">
     <sf:listMetadata metadataType="BusinessProcess" resultFilePath="${build.lists.dir}/BusinessProcess.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listCallCenter" depends="-setUpLists">
+    <sf:listMetadata metadataType="CallCenter" resultFilePath="${build.lists.dir}/CallCenter.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
   <target name="listRecordType" depends="-setUpLists">
     <sf:listMetadata metadataType="RecordType" resultFilePath="${build.lists.dir}/RecordType.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
@@ -115,8 +136,14 @@
   <target name="listEmailTemplate" depends="-setUpLists">
     <sf:listMetadata metadataType="EmailTemplate" resultFilePath="${build.lists.dir}/EmailTemplate.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
+  <target name="listEntitlementProcess" depends="-setUpLists">
+    <sf:listMetadata metadataType="EntitlementProcess" resultFilePath="${build.lists.dir}/EntitlementProcess.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
   <target name="listEntitlementTemplate" depends="-setUpLists">
     <sf:listMetadata metadataType="EntitlementTemplate" resultFilePath="${build.lists.dir}/EntitlementTemplate.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listEscalationRules" depends="-setUpLists">
+    <sf:listMetadata metadataType="EscalationRules" resultFilePath="${build.lists.dir}/EscalationRules.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
   <target name="listFlow" depends="-setUpLists">
     <sf:listMetadata metadataType="Flow" resultFilePath="${build.lists.dir}/Flow.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
@@ -141,6 +168,9 @@
   </target>
   <target name="listLetterhead" depends="-setUpLists">
     <sf:listMetadata metadataType="Letterhead" resultFilePath="${build.lists.dir}/Letterhead.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
+  <target name="listMilestoneType" depends="-setUpLists">
+    <sf:listMetadata metadataType="MilestoneType" resultFilePath="${build.lists.dir}/MilestoneType.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
   <target name="listOpportunityOwnerSharingRule" depends="-setUpLists">
     <sf:listMetadata metadataType="OpportunityOwnerSharingRule" resultFilePath="${build.lists.dir}/OpportunityOwnerSharingRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
@@ -202,5 +232,5 @@
   <target name="listWorkflowRule" depends="-setUpLists">
     <sf:listMetadata metadataType="WorkflowRule" resultFilePath="${build.lists.dir}/WorkflowRule.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
-  <target name="list_All" depends="-setUpLists,listAccountOwnerSharingRule,listAccountCriteriaBasedSharingRule,listAccountTerritorySharingRule,listAnalyticSnapshot,listApexClass,listApexComponent,listApexPage,listApexTrigger,listCampaignOwnerSharingRule,listCampaignCriteriaBasedSharingRule,listCaseOwnerSharingRule,listCaseCriteriaBasedSharingRule,listContactOwnerSharingRule,listContactCriteriaBasedSharingRule,listCustomApplication,listCustomApplicationComponent,listCustomLabel,listCustomField,listBusinessProcess,listRecordType,listWebLink,listValidationRule,listNamedFilter,listSharingReason,listListView,listFieldSet,listCustomObjectSharingRules,listCustomObjectTranslation,listCustomPageWebLink,listCustomSite,listCustomTab,listDashboard,listDataCategoryGroup,listDocument,listEmailTemplate,listEntitlementTemplate,listFlow,listGroup,listHomePageComponent,listHomePageLayout,listLayout,listLeadOwnerSharingRule,listLeadCriteriaBasedSharingRule,listLetterhead,listOpportunityOwnerSharingRule,listOpportunityCriteriaBasedSharingRule,listPermissionSet,listPortal,listProfile,listQueue,listRemoteSiteSetting,listReport,listReportType,listRole,listScontrol,listStaticResource,listTerritory,listWorkflowFieldUpdate,listWorkflowTask,listWorkflowAlert,listWorkflowSend,listWorkflowOutboundMessage,listWorkflowRule"/>
+  <target name="list_All" depends="-setUpLists,listAccountOwnerSharingRule,listAccountCriteriaBasedSharingRule,listAccountTerritorySharingRule,listAnalyticSnapshot,listApexClass,listApexComponent,listApexPage,listApexTrigger,listAssignmentRules,listAuthProvider,listAutoResponseRules,listCampaignOwnerSharingRule,listCampaignCriteriaBasedSharingRule,listCaseOwnerSharingRule,listCommunity,listCaseCriteriaBasedSharingRule,listContactOwnerSharingRule,listContactCriteriaBasedSharingRule,listCustomApplication,listCustomApplicationComponent,listCustomLabel,listCustomField,listBusinessProcess,listCallCenter,listRecordType,listWebLink,listValidationRule,listNamedFilter,listSharingReason,listListView,listFieldSet,listCustomObjectSharingRules,listCustomObjectTranslation,listCustomPageWebLink,listCustomSite,listCustomTab,listDashboard,listDataCategoryGroup,listDocument,listEmailTemplate,listEntitlementProcess,listEntitlementTemplate,listEscalationRules,listFlow,listGroup,listHomePageComponent,listHomePageLayout,listLayout,listLeadOwnerSharingRule,listLeadCriteriaBasedSharingRule,listLetterhead,listMilestoneType,listOpportunityOwnerSharingRule,listOpportunityCriteriaBasedSharingRule,listPermissionSet,listPortal,listProfile,listQueue,listRemoteSiteSetting,listReport,listReportType,listRole,listScontrol,listStaticResource,listTerritory,listWorkflowFieldUpdate,listWorkflowTask,listWorkflowAlert,listWorkflowSend,listWorkflowOutboundMessage,listWorkflowRule"/>
 </project>
