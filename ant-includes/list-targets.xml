@@ -109,6 +109,9 @@
   <target name="listFieldSet" depends="-setUpLists">
     <sf:listMetadata metadataType="FieldSet" resultFilePath="${build.lists.dir}/FieldSet.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
+  <target name="listCustomObject" depends="-setUpLists">
+    <sf:listMetadata metadataType="CustomObject" resultFilePath="${build.lists.dir}/CustomObject.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
+  </target>
   <target name="listCustomObjectSharingRules" depends="-setUpLists">
     <sf:listMetadata metadataType="CustomObjectSharingRules" resultFilePath="${build.lists.dir}/CustomObjectSharingRules.log" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}"/>
   </target>
