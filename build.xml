@@ -19,9 +19,10 @@
 
   <target name="retrieveMiscMetadata" depends="generatePackageXmlAndBuildXml,-setUpMetadataDir">
     <sf:retrieve unpackaged="build/misc-package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+
+    <sf:retrieve unpackaged="build/profile-package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
   </target>
 
   <target name="backupMetadata" depends="bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
   </target>
-
 </project>

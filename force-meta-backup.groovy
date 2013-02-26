@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-
 @Grab(group='com.force.sdk', module='force-connector', version='22.0.9-BETA')
 @Grab(group='commons-lang', module='commons-lang', version='2.6')
 
@@ -15,8 +14,6 @@ import java.net.URLEncoder
 import groovy.xml.MarkupBuilder
 import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
-
-import groovy.util.CliBuilder
 
 class ForceService {
     public final FORCE_API_VERSION = '27.0'
@@ -121,6 +118,29 @@ class ForceService {
     }
 }
 
+class ForceServiceFactory {
+    static createForceService(propFileName) {
+        def loadProperties = {
+            def props = new Properties()
+            def inputStream = getClass().getResourceAsStream(it)
+
+            props.load(inputStream)
+            inputStream.close()
+
+            props
+
+            new ConfigSlurper().parse(props)
+        }
+
+        def buildProperties = loadProperties propFileName
+
+        new ForceService(
+            buildProperties.sf.serverurl,
+            buildProperties.sf.username,
+            buildProperties.sf.password
+        )
+    }
+}
 
 class Folders {
     def forceService
@@ -266,28 +286,6 @@ class Folders {
     }
 }
 
-def createForceService = { propFileName ->
-    def loadProperties = {
-        def props = new Properties()
-        def inputStream = getClass().getResourceAsStream(it)
-
-        props.load(inputStream)
-        inputStream.close()
-
-        props
-
-        new ConfigSlurper().parse(props)
-    }
-
-    def buildProperties = loadProperties propFileName
-
-    new ForceService(
-        buildProperties.sf.serverurl,
-        buildProperties.sf.username,
-        buildProperties.sf.password
-    )
-}
-
 class MiscMetadataManifestBuilder {
     def forceService
     
@@ -370,15 +368,106 @@ class MiscMetadataManifestBuilder {
     }
 }
 
+class ProfilesMetadataManifestBuilder {
+    def forceService
 
-////////////////////////////////////////////////////////////////////////////////
+    static final PACKAGE_XML = 'build/profile-package.xml'
+
+    static final TYPES = [
+        'ApexClass',
+        'ApexPage',
+        'CustomApplication',
+        'CustomObject',
+        'CustomTab',
+        'Layout'
+    ]
+
+    ProfilesMetadataManifestBuilder(ForceService forceService) {
+        this.forceService = forceService
+    }
+
+    private getGroupedFileProperties() {
+        def queries = TYPES.collect {
+            def query = new ListMetadataQuery()
+            query.type = it
+            query
+        }
+
+        def grouped = [:]
+
+        forceService.listMetadata(queries).each { fileProperties ->
+            def type = fileProperties.type
+
+            if (!grouped.containsKey(type)) {
+                grouped[type] = []
+            }
+
+            grouped[type] << fileProperties
+        }
+
+        grouped
+    }
+
+    def writePackageXml() {
+        def builder = new StreamingMarkupBuilder()
+        builder.encoding = 'UTF-8'
+
+        def xml = builder.bind {
+            mkp.xmlDeclaration()
+            Package(xmlns: 'http://soap.sforce.com/2006/04/metadata') {
+
+                groupedFileProperties.each { type, fileProperties ->
+                    types {
+                        fileProperties.each { fp ->
+                            members { mkp.yield fp.fullName }
+                        }
+
+                        name() { mkp.yield type}
+                    }
+                }
+
+                types {
+                    members '*'
+                    name 'Profile'
+                }
+
+                version { mkp.yield forceService.FORCE_API_VERSION }
+            }
+        }
+
+        def writer = new FileWriter(PACKAGE_XML)
+        XmlUtil.serialize(xml, writer)
+    }
+}
 
 
-def forceService = createForceService('build.properties')
+// ////////////////////////////////////////////////////////////////////////////////
 
-def folders = new Folders(forceService)
-folders.writeFolderBulkRetriveXml()
-folders.writeFoldersPackageXml()
+static void main(args) {
+    def cli = new CliBuilder(usage: 'force-meta-backup.groovy [options]')
+    cli.with {
+        h longOpt: 'help', 'usage information'
+    }
 
-def misc = new MiscMetadataManifestBuilder(forceService)
-misc.writePackageXml()
+    def options = cli.parse(args)
+    if (!options) {
+        return
+    }
+
+    if (options.h) {
+        cli.usage()
+        return
+    }
+
+    def forceService = ForceServiceFactory.createForceService('build.properties')
+    
+    def folders = new Folders(forceService)
+    folders.writeFolderBulkRetriveXml()
+    folders.writeFoldersPackageXml()
+
+    def misc = new MiscMetadataManifestBuilder(forceService)
+    misc.writePackageXml()
+
+    def profiles = new ProfilesMetadataManifestBuilder(forceService)
+    profiles.writePackageXml()
+}
