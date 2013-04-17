@@ -163,7 +163,11 @@ class Folders {
         def builder = new StreamingMarkupBuilder()
 
         def foldersAndUnfiled = allFolders
+
+        foldersAndUnfiled['Email'] = (foldersAndUnfiled['Email']) ?: []
         foldersAndUnfiled['Email'] += fetchUnfiledPublicEmailTemplates()
+
+        foldersAndUnfiled['Report'] = (foldersAndUnfiled['Report']) ?: []
         foldersAndUnfiled['Report'] += fetchUnfiledPublicReports()
 
         builder.encoding = 'UTF-8'
