@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Force.com Metadata Backup" basedir="." xmlns:sf="antlib:com.salesforce">
-  
+
+  <taskdef uri="antlib:com.salesforce" resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce.jar"/>
+ 
   <import file="ant-includes/setup-target.xml" />
   <import file="ant-includes/list-targets.xml" />
   <import file="ant-includes/bulk-retrievable-target.xml" />
