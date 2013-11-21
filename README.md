@@ -2,8 +2,10 @@
 
 A tool to help download Salesforce.com Metadata.
 
+Using the Salesforce Metadata API, this tool will dynamically generate Ant `build.xml` files and Salesforce Metadata `package.xml` files for downloading the Metadata from your Organisation.
+
 The metadata is downloaded in 3 phases:
-- All bulk retrievable components are downloaded first, these are statically defined in the `bulkRetrievable` ant target.
+- All bulk retrievable components are downloaded first, the `bulkRetrievable` Ant target is dynamically generated and executed.
 - Queries are performed on the Salesforce Org. to determine all folders for Dashboards, Documents, Email Templates and Reports. Then `build.xml` and `package.xml` files are dynamically generated with this information. A bulk retrieve is then invoked for all folders and content.
 - The remaining miscellaneous metadata components that can not be retrived by bulk or by wildcard methds are downloaded by building a `package.xml` file that explicitly lists these items.
 
