@@ -9,6 +9,7 @@ import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
 
+import com.sforce.ws.SoapFaultException
 import java.net.URLEncoder
 
 import groovy.xml.MarkupBuilder
@@ -16,9 +17,11 @@ import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
 
 class ForceService {
-    public final FORCE_API_VERSION = '27.0'
+    public final FORCE_API_VERSION = '29.0'
 
     def forceServiceConnector
+    def metadata
+    def metadataTypes
 
     ForceService(serverUrl, username, password) {
         def config = new ForceConnectorConfig()
@@ -43,6 +46,35 @@ class ForceService {
         forceServiceConnector.connection.userInfo.organizationId
     }
 
+    def isValidMetadataType(type) {
+        if (metadata == null) {
+            metadata = basicMetadata()
+
+            metadataTypes = []
+            metadataTypes << metadata.keySet()
+
+            metadata.each { k, v ->
+                v.childNames.each {
+                    if (it) {
+                        metadataTypes << it
+                    }
+                }
+            }
+            metadataTypes = metadataTypes.flatten() as Set
+        }
+
+        metadataTypes.contains(type)
+    }
+
+    def withValidMetadataType(type, Closure closure) {
+        if (isValidMetadataType(type)) {
+            closure(type)
+        } else {
+            println "WARNING: $type is an invalid metadata type for this Organisation"
+            null
+        }
+    }
+
     def query(soql) {
         def result = []
 
@@ -61,6 +93,24 @@ class ForceService {
         }
 
         result
+    }
+
+    def basicMetadata() {
+        def metadata = [:]
+
+        def result = metadataConnection.describeMetadata(FORCE_API_VERSION.toDouble())
+        if (result) {
+            result.metadataObjects.each { obj ->
+                def name = obj.xmlName
+
+                metadata[name] = [
+                    name: name,
+                    childNames: obj.childXmlNames.collect { it } as Set
+                ]
+            }
+        }
+
+        metadata
     }
 
     def listMetadata(String type) {
@@ -93,7 +143,16 @@ class ForceService {
             }
 
             def requestQueries = queries.subList(start, end) as ListMetadataQuery[]
-            def result = metadataConnection.listMetadata(requestQueries, apiVersion)
+            def result = null
+            try {
+                result = metadataConnection.listMetadata(requestQueries, apiVersion)
+            } catch (SoapFaultException e) {
+                if (e.faultCode.localPart == 'INVALID_TYPE') {
+                    println "WARNING: ${e.message}"
+                } else {
+                    throw e
+                }
+            }
 
             if (result != null) {
                 fileProperties.addAll(result.toList())
@@ -119,7 +178,7 @@ class ForceService {
 }
 
 class ForceServiceFactory {
-    static createForceService(propFileName) {
+    static create(propFileName) {
         def loadProperties = {
             def props = new Properties()
             def inputStream = getClass().getResourceAsStream(it)
@@ -142,11 +201,133 @@ class ForceServiceFactory {
     }
 }
 
+class FileWriterFactory {
+    static create(filePath) {
+        def file = new File(filePath)
+        def parentFile = file.parentFile
+
+        if (parentFile) {
+            parentFile.mkdirs()
+        }
+
+        new FileWriter(file)
+    }
+}
+
+class BulkMetadataManifestBuilder {
+    def forceService
+    def config
+    def buildXmlPath
+
+    static final BUILD_XML = 'bulk-retrievable-target.xml'
+
+    static TYPES = [
+        'AccountSharingRules',
+        'AccountTerritorySharingRules',
+        'AnalyticSnapshot',
+        'ApexComponent',
+        'ApexTrigger',
+        'ApprovalProcess',
+        'ArticleType',
+        'AssignmentRules',
+        'AuthProvider',
+        'AutoResponseRules',
+        'CallCenter',
+        'CampaignSharingRules',
+        'CaseSharingRules',
+        'Community',
+        'ContactSharingRules',
+        'CustomApplicationComponent',
+        'CustomLabels',
+        'CustomPageWebLink',
+        'CustomSite',
+        'DataCategoryGroup',
+        'EntitlementProcess',
+        'EntitlementTemplate',
+        'EscalationRules',
+        'FlexiPage',
+        'Flow',
+        'Group',
+        'HomePageComponent',
+        'HomePageLayout',
+        'InstalledPackage',
+        'LiveChatAgentConfig',
+        'LiveChatButton',
+        'LiveChatDeployment',
+        'MilestoneType',
+        'Network',
+        'OpportunitySharingRules',
+        'Portal',
+        'PostTemplate',
+        'Queue',
+        'QuickAction',
+        'RemoteSiteSetting',
+        'ReportType',
+        'Role',
+        'SamlSsoConfig',
+        'Scontrol',
+        'Settings',
+        'Skill',
+        'StaticResource',
+        'Territory',
+        'Workflow'
+    ]
+
+    BulkMetadataManifestBuilder(ForceService forceService, config) {
+        this.forceService = forceService
+        this.config = config
+        //packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
+        buildXmlPath = "${config['build.dir']}/${BUILD_XML}"
+    }
+
+    def writeBuildXml() {
+        def writer = FileWriterFactory.create(buildXmlPath)
+        def builder = new MarkupBuilder(writer)
+
+        builder.project('xmlns:sf': 'antlib:com.salesforce', 'default': 'bulkRetrievable') {
+            'import'(file: '../ant-includes/setup-target.xml')
+
+            target(name: 'bulkRetrievable', depends: '-setUpMetadataDir') {
+                TYPES.each { type ->
+                    forceService.withValidMetadataType(type) {
+                        'sf:bulkRetrieve'(
+                            metadataType: it,
+                            retrieveTarget: '${build.metadata.dir}',
+                            username: '${sf.username}',
+                            password: '${sf.password}',
+                            serverurl: '${sf.serverurl}',
+                            pollWaitMillis: '${sf.pollWaitMillis}',
+                            maxPoll: '${sf.maxPoll}'
+                        )
+                    }
+                    /*
+                    if (forceService.isValidMetadataType(it)) {
+                        'sf:bulkRetrieve'(
+                            metadataType: it,
+                            retrieveTarget: '${build.metadata.dir}',
+                            username: '${sf.username}',
+                            password: '${sf.password}',
+                            serverurl: '${sf.serverurl}',
+                            pollWaitMillis: '${sf.pollWaitMillis}',
+                            maxPoll: '${sf.maxPoll}'
+                        )
+                    } else {
+                        println "WARNING: Unable to bulkRetrieve invalid Metadata type: ${it}"
+                    }*/
+                }
+            }
+        }
+    }
+}
+
 class Folders {
     def forceService
+    def config
+    def packageXmlPath
+    def buildXmlPath
     
-    static final PACKAGE_XML = 'build/folders-package.xml'
-    static final BUILD_XML = 'build/folders-build.xml'
+    static final PACKAGE_XML = 'folders-package.xml'
+    static final BUILD_XML = 'folders-build.xml'
 
     def folderMetaTypeByFolderType = [
         Dashboard: 'Dashboard',
@@ -155,8 +336,11 @@ class Folders {
         Report: 'Report'
     ]
 
-    Folders(ForceService forceService) {
+    Folders(ForceService forceService, config) {
         this.forceService = forceService
+        this.config = config
+        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
+        buildXmlPath = "${config['build.dir']}/${BUILD_XML}"
     }
 
     def writeFoldersPackageXml() {
@@ -191,12 +375,12 @@ class Folders {
             }
         }
 
-        def writer = new FileWriter(PACKAGE_XML)
+        def writer = FileWriterFactory.create(packageXmlPath)
         XmlUtil.serialize(xml, writer)
     }
 
     def writeFolderBulkRetriveXml() {
-        def writer = new FileWriter(BUILD_XML)
+        def writer = FileWriterFactory.create(buildXmlPath)
         def builder = new MarkupBuilder(writer)
 
         builder.project('xmlns:sf': 'antlib:com.salesforce', 'default': 'bulkRetrieveFolders') {
@@ -204,7 +388,7 @@ class Folders {
 
             target(name: 'bulkRetrieveFolders', depends: '-setUpMetadataDir') {
                 'sf:retrieve'(
-                    unpackaged: PACKAGE_XML,
+                    unpackaged: packageXmlPath,
                     retrieveTarget: '${build.metadata.dir}',
                     username: '${sf.username}',
                     password: '${sf.password}',
@@ -217,8 +401,8 @@ class Folders {
                     folders.each { folderName ->
                         'sf:bulkRetrieve'(
                             metadataType: folderMetaTypeByFolderType[folderType],
-                            retrieveTarget: '${build.metadata.dir}',
                             containingFolder: folderName,
+                            retrieveTarget: '${build.metadata.dir}',
                             username: '${sf.username}',
                             password: '${sf.password}',
                             serverurl: '${sf.serverurl}',
@@ -292,8 +476,10 @@ class Folders {
 
 class MiscMetadataManifestBuilder {
     def forceService
+    def config
+    def packageXmlPath
     
-    static final PACKAGE_XML = 'build/misc-package.xml'
+    static final PACKAGE_XML = 'misc-package.xml'
 
     static final TYPES = [
         'Letterhead',
@@ -310,25 +496,34 @@ class MiscMetadataManifestBuilder {
         'ContactOwnerSharingRule',
         'ContactSharingRules',
         'CustomObjectCriteriaBasedSharingRule',
+        'CustomObjectOwnerSharingRule',
         'CustomObjectSharingRules',
+        'LeadCriteriaBasedSharingRule',
         'LeadOwnerSharingRule',
         'LeadSharingRules',
         'OpportunityCriteriaBasedSharingRule',
         'OpportunityOwnerSharingRule',
-        'OpportunitySharingRules'
+        'OpportunitySharingRules',
+        'UserCriteriaBasedSharingRule',
+        'UserMembershipSharingRule'
     ]
 
-    MiscMetadataManifestBuilder(ForceService forceService) {
+    MiscMetadataManifestBuilder(ForceService forceService, config) {
         this.forceService = forceService
+        this.config = config
+        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
     }
 
 
     private getGroupedFileProperties() {
-        def queries = TYPES.collect {
-            def query = new ListMetadataQuery()
-            query.type = it
-            query
+        def queries = TYPES.collect { type ->
+            forceService.withValidMetadataType(type) {
+                def query = new ListMetadataQuery()
+                query.type = it
+                query
+            }
         }
+        queries.removeAll([null])
 
         def grouped = [:]
 
@@ -367,35 +562,49 @@ class MiscMetadataManifestBuilder {
             }
         }
 
-        def writer = new FileWriter(PACKAGE_XML)
+        def writer = FileWriterFactory.create(packageXmlPath)
         XmlUtil.serialize(xml, writer)
     }
 }
 
 class ProfilesMetadataManifestBuilder {
     def forceService
+    def config
+    def packageXmlPath
 
-    static final PACKAGE_XML = 'build/profile-package.xml'
+    static final PACKAGE_XML = 'profile-package.xml'
 
     static final TYPES = [
         'ApexClass',
         'ApexPage',
         'CustomApplication',
         'CustomObject',
+        'CustomObjectTranslation',
         'CustomTab',
+        'ExternalDataSource',
         'Layout'
     ]
 
-    ProfilesMetadataManifestBuilder(ForceService forceService) {
+    static final PERMISSON_TYPES = [
+        'Profile',
+        'PermissionSet'
+    ]
+
+    ProfilesMetadataManifestBuilder(ForceService forceService, config) {
         this.forceService = forceService
+        this.config = config
+        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
     }
 
     private getGroupedFileProperties() {
-        def queries = TYPES.collect {
-            def query = new ListMetadataQuery()
-            query.type = it
-            query
+        def queries = TYPES.collect { type ->
+            forceService.withValidMetadataType(type) {
+                def query = new ListMetadataQuery()
+                query.type = it
+                query
+            }
         }
+        queries.removeAll([null])
 
         def grouped = [:]
 
@@ -430,26 +639,31 @@ class ProfilesMetadataManifestBuilder {
                     }
                 }
 
-                types {
-                    members '*'
-                    name 'Profile'
+                PERMISSON_TYPES.each { type ->
+                    types {
+                        members '*'
+                        name type
+                    }
                 }
 
                 version { mkp.yield forceService.FORCE_API_VERSION }
             }
         }
 
-        def writer = new FileWriter(PACKAGE_XML)
+        def writer = FileWriterFactory.create(packageXmlPath)
         XmlUtil.serialize(xml, writer)
     }
 }
 
 
-// ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 static void main(args) {
+    def config = ['build.dir': 'build'];
+
     def cli = new CliBuilder(usage: 'force-meta-backup.groovy [options]')
     cli.with {
+        b longOpt: 'build-dir', args: 1, 'build directory'
         h longOpt: 'help', 'usage information'
     }
 
@@ -463,15 +677,23 @@ static void main(args) {
         return
     }
 
-    def forceService = ForceServiceFactory.createForceService('build.properties')
+    if (options.b) {
+        config['build.dir'] = options.b
+    }
+
+    def forceService = ForceServiceFactory.create('build.properties')
+
+
+    def bulk = new BulkMetadataManifestBuilder(forceService, config)
+    bulk.writeBuildXml()
     
-    def folders = new Folders(forceService)
+    def folders = new Folders(forceService, config)
     folders.writeFolderBulkRetriveXml()
     folders.writeFoldersPackageXml()
 
-    def misc = new MiscMetadataManifestBuilder(forceService)
+    def misc = new MiscMetadataManifestBuilder(forceService, config)
     misc.writePackageXml()
 
-    def profiles = new ProfilesMetadataManifestBuilder(forceService)
+    def profiles = new ProfilesMetadataManifestBuilder(forceService, config)
     profiles.writePackageXml()
 }

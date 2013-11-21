@@ -5,7 +5,6 @@
  
   <import file="ant-includes/setup-target.xml" />
   <import file="ant-includes/list-targets.xml" />
-  <import file="ant-includes/bulk-retrievable-target.xml" />
 
   <target name="clean">
     <delete dir="${build.dir}" />
@@ -13,6 +12,10 @@
 
   <target name="generatePackageXmlAndBuildXml" depends="-setUp">
     <exec executable="force-meta-backup.groovy" resolveexecutable="true" />
+  </target>
+
+  <target name="bulkRetrievable" depends="generatePackageXmlAndBuildXml, -setUpMetadataDir">
+    <ant antfile="${build.dir}/bulk-retrievable-target.xml" />
   </target>
 
   <target name="bulkRetrieveFolders" depends="generatePackageXmlAndBuildXml">
@@ -25,31 +28,6 @@
   </target>
 
   <target name="backupMetadata" depends="bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
-  </target>
-
-  <target name="-sfBulkRetrieve">
-    <sf:bulkRetrieve
-        metadataType="${metadataType}"
-        retrieveTarget="${build.metadata.dir}"
-        username="${sf.username}"
-        password="${sf.password}"
-        serverurl="${sf.serverurl}"
-        pollWaitMillis="${sf.pollWaitMillis}"
-        maxPoll="${sf.maxPoll}"
-    />  
-  </target>
-
-  <target name="-sfBulkRetrieveFolder">
-    <sf:bulkRetrieve
-        metadataType="${metadataType}"
-        containingFolder="${containingFolder}"
-        retrieveTarget="${build.metadata.dir}"
-        username="${sf.username}"
-        password="${sf.password}"
-        serverurl="${sf.serverurl}"
-        pollWaitMillis="${sf.pollWaitMillis}"
-        maxPoll="${sf.maxPoll}"
-    />  
   </target>
 
   <target name="-sfRetrieve">
