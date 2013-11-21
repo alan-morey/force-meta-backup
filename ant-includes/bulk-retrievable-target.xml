@@ -2,40 +2,43 @@
 <project xmlns:sf="antlib:com.salesforce">
 
   <target name="bulkRetrievable" depends="-setUpMetadataDir">
-    <!-- com.sforce.ws.SoapFaultException: INVALID_TYPE: Unknown type:ArticleType
-    <sf:bulkRetrieve metadataType="ArticleType" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    -->
-    <sf:bulkRetrieve metadataType="AccountSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="ApexComponent" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="ApexTrigger" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="AssignmentRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="AuthProvider" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="AutoResponseRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CallCenter" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CampaignSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CaseSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Community" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="ContactSharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CustomApplicationComponent" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CustomLabels" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CustomPageWebLink" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="CustomSite" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="DataCategoryGroup" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="EscalationRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Flow" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Group" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="HomePageComponent" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="HomePageLayout" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    
-    <sf:bulkRetrieve metadataType="Settings" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="OpportunitySharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Queue" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="RemoteSiteSetting" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="ReportType" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Role" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Scontrol" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="StaticResource" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Workflow" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="AccountSharingRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="AnalyticSnapshot" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="ApexComponent" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="ApexTrigger" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="ApprovalProcess" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="AssignmentRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="AuthProvider" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="AutoResponseRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CallCenter" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CampaignSharingRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CaseSharingRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Community" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="ContactSharingRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CustomApplicationComponent" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CustomLabels" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CustomPageWebLink" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="CustomSite" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="DataCategoryGroup" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="EscalationRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="FlexiPage" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Flow" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Group" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="HomePageComponent" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="HomePageLayout" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="InstalledPackage" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="OpportunitySharingRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="PostTemplate" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Queue" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="QuickAction" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="RemoteSiteSetting" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="ReportType" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Role" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="SamlSsoConfig" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Scontrol" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Settings" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="StaticResource" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Workflow" /></antcall>
     
     <!--
          The following types are invalid for a Developer Edition Salesforce Org.
@@ -44,12 +47,25 @@
          Solution for now is simply comment them out when running against a 
          Developer Edition.
     -->
-    <sf:bulkRetrieve metadataType="AccountTerritorySharingRules" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="EntitlementProcess" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="EntitlementTemplate" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="MilestoneType" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Portal" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-    <sf:bulkRetrieve metadataType="Territory" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="AccountTerritorySharingRules" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="EntitlementProcess" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="EntitlementTemplate" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="MilestoneType" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Portal" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Territory" /></antcall>
+
+    <!--
+         The following types are invalid for a Unlimited Edition Salesforce Org.
+         and will result in a SoapException.
+    -->
+    <!--
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="ArticleType" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="LiveChatAgentConfig" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="LiveChatButton" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="LiveChatDeployment" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Network" /></antcall>
+    <antcall target="-sfBulkRetrieve"><param name="metadataType" value="Skill" /></antcall>
+    -->
 
     <!--
         Profiles only include security settings for the other metadata types
@@ -61,6 +77,7 @@
         - CustomApplication
         - CustomObject
         - CustomTab
+        - ExternalDataSource
         - Layout
         - Profile
 
@@ -75,6 +92,7 @@
        - CustomObjectTranslation
        - PermissionSet
     -->
-    <sf:retrieve unpackaged="package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+
+    <antcall target="-sfRetrieve"><param name="unpackaged" value="package.xml" /></antcall>
   </target>
 </project>

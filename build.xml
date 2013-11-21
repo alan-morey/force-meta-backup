@@ -16,15 +16,61 @@
   </target>
 
   <target name="bulkRetrieveFolders" depends="generatePackageXmlAndBuildXml">
-    <ant antfile="build/folders-build.xml" />
+    <ant antfile="${build.dir}/folders-build.xml" />
   </target>
 
   <target name="retrieveMiscMetadata" depends="generatePackageXmlAndBuildXml,-setUpMetadataDir">
-    <sf:retrieve unpackaged="build/misc-package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
-
-    <sf:retrieve unpackaged="build/profile-package.xml" retrieveTarget="${build.metadata.dir}" username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" pollWaitMillis="${sf.pollWaitMillis}" maxPoll="${sf.maxPoll}"/>
+    <antcall target="-sfRetrieve"><param name="unpackaged" value="${build.dir}/misc-package.xml" /></antcall>
+    <antcall target="-sfRetrieve"><param name="unpackaged" value="${build.dir}/profile-package.xml" /></antcall>
   </target>
 
   <target name="backupMetadata" depends="bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
+  </target>
+
+  <target name="-sfBulkRetrieve">
+    <sf:bulkRetrieve
+        metadataType="${metadataType}"
+        retrieveTarget="${build.metadata.dir}"
+        username="${sf.username}"
+        password="${sf.password}"
+        serverurl="${sf.serverurl}"
+        pollWaitMillis="${sf.pollWaitMillis}"
+        maxPoll="${sf.maxPoll}"
+    />  
+  </target>
+
+  <target name="-sfBulkRetrieveFolder">
+    <sf:bulkRetrieve
+        metadataType="${metadataType}"
+        containingFolder="${containingFolder}"
+        retrieveTarget="${build.metadata.dir}"
+        username="${sf.username}"
+        password="${sf.password}"
+        serverurl="${sf.serverurl}"
+        pollWaitMillis="${sf.pollWaitMillis}"
+        maxPoll="${sf.maxPoll}"
+    />  
+  </target>
+
+  <target name="-sfRetrieve">
+    <sf:retrieve
+      unpackaged="${unpackaged}"
+      retrieveTarget="${build.metadata.dir}"
+      username="${sf.username}"
+      password="${sf.password}"
+      serverurl="${sf.serverurl}"
+      pollWaitMillis="${sf.pollWaitMillis}"
+      maxPoll="${sf.maxPoll}"
+    />
+  </target>
+
+  <target name="-sfListMetadata">
+    <sf:listMetadata
+      metadataType="${metadataType}"
+      resultFilePath="${build.lists.dir}/${metadataType}.log"
+      username="${sf.username}"
+      password="${sf.password}"
+      serverurl="${sf.serverurl}"
+    />
   </target>
 </project>
