@@ -11,7 +11,11 @@
   </target>
 
   <target name="generatePackageXmlAndBuildXml" depends="-setUp">
-    <exec executable="force-meta-backup.groovy" resolveexecutable="true" />
+  <exec executable="cmd">
+    <arg value="/c"/>
+    <arg value="${env.GROOVY_HOME}/bin/groovy.bat"/>
+    <arg file="force-meta-backup.groovy" />
+  </exec>
   </target>
 
   <target name="bulkRetrievable" depends="generatePackageXmlAndBuildXml, -setUpMetadataDir">
