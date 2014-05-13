@@ -1,4 +1,4 @@
-#force-meta-backup
+# force-meta-backup
 
 A tool to help download Salesforce.com Metadata.
 
@@ -16,7 +16,22 @@ Inspired by:
 http://wiki.developerforce.com/page/Syncing_Salesforce_Org_Metadata_to_Github
 https://github.com/danieljpeter/salesforceMetadataBackup
 
-##Usage
+## Prerequisites
+The following tools should be installed before use:
+- [Ant](http://ant.apache.org/)
+- [Groovy](http://groovy.codehaus.org/)
+
+Ensure the `GROOVY_HOME` environment variable is defined and you are able to execute both `ant` and `groovy` on command line:
+e.g.
+```
+$> ant -version
+Apache Ant(TM) version 1.8.2 compiled on December 3 2011
+
+$> groovy -version
+Groovy Version: 2.1.5 JVM: 1.7.0_51 Vendor: Oracle Corporation OS: Linux
+```
+
+## Usage
 - Copy `build.sample.properties` to `build.properties`
 - Edit `build.properties` and specify your Salesforce credentials
 - Open command prompt and enter command `ant backupMetadata`

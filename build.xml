@@ -11,7 +11,15 @@
   </target>
 
   <target name="generatePackageXmlAndBuildXml" depends="-setUp">
-    <exec executable="force-meta-backup.groovy" resolveexecutable="true" />
+    <property name="script.name" value="force-meta-backup.groovy" />
+
+    <exec osfamily="unix" executable="${script.name}" resolveexecutable="true" />
+
+    <exec osfamily="windows" executable="cmd">
+      <arg value="/c"/>
+      <arg value="${env.GROOVY_HOME}/bin/groovy.bat"/>
+      <arg file="${script.name}" />
+    </exec>
   </target>
 
   <target name="bulkRetrievable" depends="generatePackageXmlAndBuildXml, -setUpMetadataDir">
@@ -27,7 +35,7 @@
     <antcall target="-sfRetrieve"><param name="unpackaged" value="${build.dir}/profile-package.xml" /></antcall>
   </target>
 
-  <target name="backupMetadata" depends="bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
+  <target name="backupMetadata" depends="clean,bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
   </target>
 
   <target name="-sfRetrieve">
