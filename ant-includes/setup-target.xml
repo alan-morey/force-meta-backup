@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <property file="build.properties"/>
-  <property environment="env"/>
+  <property file="build.properties" />
+  <property file="ant-includes/default.properties" />
   <property name="build.dir" value="build" />
 
   <target name="-setUp">
