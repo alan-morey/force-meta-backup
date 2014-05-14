@@ -225,6 +225,7 @@ class BulkMetadataManifestBuilder {
         'AccountSharingRules',
         'AccountTerritorySharingRules',
         'AnalyticSnapshot',
+        'AppMenu',
         'ApexComponent',
         'ApexTrigger',
         'ApprovalProcess',
@@ -267,8 +268,10 @@ class BulkMetadataManifestBuilder {
         'SamlSsoConfig',
         'Scontrol',
         'Settings',
+        'SharingSet',
         'Skill',
         'StaticResource',
+        'SiteDotCom',
         'Territory',
         'Workflow'
     ]
@@ -276,7 +279,6 @@ class BulkMetadataManifestBuilder {
     BulkMetadataManifestBuilder(ForceService forceService, config) {
         this.forceService = forceService
         this.config = config
-        //packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
         buildXmlPath = "${config['build.dir']}/${BUILD_XML}"
     }
 
@@ -300,20 +302,6 @@ class BulkMetadataManifestBuilder {
                             maxPoll: '${sf.maxPoll}'
                         )
                     }
-                    /*
-                    if (forceService.isValidMetadataType(it)) {
-                        'sf:bulkRetrieve'(
-                            metadataType: it,
-                            retrieveTarget: '${build.metadata.dir}',
-                            username: '${sf.username}',
-                            password: '${sf.password}',
-                            serverurl: '${sf.serverurl}',
-                            pollWaitMillis: '${sf.pollWaitMillis}',
-                            maxPoll: '${sf.maxPoll}'
-                        )
-                    } else {
-                        println "WARNING: Unable to bulkRetrieve invalid Metadata type: ${it}"
-                    }*/
                 }
             }
         }
