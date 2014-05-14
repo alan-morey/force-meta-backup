@@ -7,7 +7,12 @@
   </target>
 
   <target name="describeMetadata" depends="-setUp">
-    <sf:describeMetadata resultFilePath="${build.dir}/describe.log"   />
+    <sf:describeMetadata
+      resultFilePath="${build.dir}/describe.log" 
+      username="${sf.username}"
+      password="${sf.password}"
+      serverurl="${sf.serverurl}"
+    />
   </target>
 
   <!-- <target name="listAccountSettings" depends="-setUpLists"><antcall target="-sfListMetadata"><param name="metadataType" value="AccountSettings" /></antcall></target> -->
