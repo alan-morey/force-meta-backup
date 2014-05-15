@@ -17,17 +17,18 @@ import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
 
 class ForceService {
-    public final FORCE_API_VERSION = '29.0'
-
     def forceServiceConnector
     def metadata
     def metadataTypes
+    def apiVersion
 
-    ForceService(serverUrl, username, password) {
+    ForceService(serverUrl, username, password, apiVersion) {
         def config = new ForceConnectorConfig()
         config.connectionUrl = buildConnectionUrl serverUrl, username, password
 
         forceServiceConnector = new ForceServiceConnector(config)
+
+        this.apiVersion = apiVersion
     }
 
     def getConnection() {
@@ -98,7 +99,7 @@ class ForceService {
     def basicMetadata() {
         def metadata = [:]
 
-        def result = metadataConnection.describeMetadata(FORCE_API_VERSION.toDouble())
+        def result = metadataConnection.describeMetadata(apiVersion.toDouble())
         if (result) {
             result.metadataObjects.each { obj ->
                 def name = obj.xmlName
@@ -131,7 +132,7 @@ class ForceService {
         def numQueries = queries.size
         def isLastQuery =  false
         def index = 0
-        def apiVersion = FORCE_API_VERSION.toDouble()
+        def apiVersion = this.apiVersion.toDouble()
 
         def fileProperties = []
         while (numQueries > 0 && !isLastQuery) {
@@ -186,17 +187,17 @@ class ForceServiceFactory {
             props.load(inputStream)
             inputStream.close()
 
-            props
-
             new ConfigSlurper().parse(props)
         }
 
-        def buildProperties = loadProperties propFileName
+        def config = loadProperties 'ant-includes/default.properties'
+        config = config.merge(loadProperties(propFileName))
 
         new ForceService(
-            buildProperties.sf.serverurl,
-            buildProperties.sf.username,
-            buildProperties.sf.password
+            config.sf.serverurl,
+            config.sf.username,
+            config.sf.password,
+            config.sf.antlib.version
         )
     }
 }
@@ -359,7 +360,7 @@ class Folders {
                     }
                 }
 
-                version { mkp.yield forceService.FORCE_API_VERSION }
+                version { mkp.yield forceService.apiVersion }
             }
         }
 
@@ -546,7 +547,7 @@ class MiscMetadataManifestBuilder {
                     }
                 }
 
-                version { mkp.yield forceService.FORCE_API_VERSION }
+                version { mkp.yield forceService.apiVersion }
             }
         }
 
@@ -634,7 +635,7 @@ class ProfilesMetadataManifestBuilder {
                     }
                 }
 
-                version { mkp.yield forceService.FORCE_API_VERSION }
+                version { mkp.yield forceService.apiVersion }
             }
         }
 
