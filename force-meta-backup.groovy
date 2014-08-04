@@ -559,9 +559,9 @@ class MiscMetadataManifestBuilder {
 class ProfilesMetadataManifestBuilder {
     def forceService
     def config
-    def packageXmlPath
+    //def packageXmlPath
 
-    static final PACKAGE_XML = 'profile-package.xml'
+    //static final PACKAGE_XML = 'profile-package.xml'
 
     static final TYPES = [
         'ApexClass',
@@ -582,7 +582,7 @@ class ProfilesMetadataManifestBuilder {
     ProfilesMetadataManifestBuilder(ForceService forceService, config) {
         this.forceService = forceService
         this.config = config
-        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
+        //packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
     }
 
     private getGroupedFileProperties() {
@@ -607,31 +607,32 @@ class ProfilesMetadataManifestBuilder {
             grouped[type] << fileProperties
         }
 
-        grouped
+        grouped.each { k, v ->
+            v.sort { a, b ->
+                a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
+            }
+        }
     }
 
-    def writePackageXml() {
+    def writePackageXmlForType(type, fileProperties) {
         def builder = new StreamingMarkupBuilder()
         builder.encoding = 'UTF-8'
 
         def xml = builder.bind {
             mkp.xmlDeclaration()
             Package(xmlns: 'http://soap.sforce.com/2006/04/metadata') {
-
-                groupedFileProperties.each { type, fileProperties ->
-                    types {
-                        fileProperties.each { fp ->
-                            members { mkp.yield fp.fullName }
-                        }
-
-                        name() { mkp.yield type}
+                types {
+                    fileProperties.each { fp ->
+                        members { mkp.yield fp.fullName }
                     }
+
+                    name() { mkp.yield type}
                 }
 
-                PERMISSON_TYPES.each { type ->
+                PERMISSON_TYPES.each { metadataType ->
                     types {
                         members '*'
-                        name type
+                        name metadataType
                     }
                 }
 
@@ -639,8 +640,50 @@ class ProfilesMetadataManifestBuilder {
             }
         }
 
-        def writer = FileWriterFactory.create(packageXmlPath)
+        def writer = FileWriterFactory.create(profilePackageXmlPath(type))
         XmlUtil.serialize(xml, writer)
+    }
+
+    def writePackageXml() {
+        groupedFileProperties.each { type, fileProperties ->
+            writePackageXmlForType type, fileProperties
+        }
+
+        writeBuildXml()
+    }
+
+    private profilePackageXmlPath(type) {
+        "${config['build.dir']}/profile-packages/${type}.xml"
+    }
+
+    private writeBuildXml() {
+        def writer = FileWriterFactory.create("${config['build.dir']}/profile-packages-target.xml")
+        def builder = new MarkupBuilder(writer)
+
+        def targetName = 'profilesPackageRetrieve'
+
+        builder.project('xmlns:sf': 'antlib:com.salesforce', 'default': targetName) {
+            'import'(file: '../ant-includes/setup-target.xml')
+
+            target(name: targetName, depends: '-setUpMetadataDir') {
+                TYPES.each { type ->
+                    def retrieveTarget = "${config['build.dir']}/profile-packages-metadata/${type}"
+                    
+                    forceService.withValidMetadataType(type) {
+                        mkdir(dir: retrieveTarget)
+                        'sf:retrieve'(
+                            unpackaged: profilePackageXmlPath(type),
+                            retrieveTarget: retrieveTarget,
+                            username: '${sf.username}',
+                            password: '${sf.password}',
+                            serverurl: '${sf.serverurl}',
+                            pollWaitMillis: '${sf.pollWaitMillis}',
+                            maxPoll: '${sf.maxPoll}'
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

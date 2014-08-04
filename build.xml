@@ -32,13 +32,15 @@
 
   <target name="retrieveMiscMetadata" depends="generatePackageXmlAndBuildXml,-setUpMetadataDir">
     <antcall target="-sfRetrieve"><param name="unpackaged" value="${build.dir}/misc-package.xml" /></antcall>
-    <antcall target="-sfRetrieve"><param name="unpackaged" value="${build.dir}/profile-package.xml" /></antcall>
+
+    <ant antfile="${build.dir}/profile-packages-target.xml" />
   </target>
 
   <target name="backupMetadata" depends="clean,bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
   </target>
 
   <target name="-sfRetrieve">
+    <echo>Retrieving ${unpackaged}</echo>
     <sf:retrieve
       unpackaged="${unpackaged}"
       retrieveTarget="${build.metadata.dir}"
