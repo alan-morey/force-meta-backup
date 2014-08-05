@@ -12,9 +12,11 @@ import com.sforce.soap.metadata.ListMetadataQuery
 import com.sforce.ws.SoapFaultException
 import java.net.URLEncoder
 
+import groovy.io.FileType
 import groovy.xml.MarkupBuilder
 import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
+
 
 class ForceService {
     def forceServiceConnector
@@ -559,9 +561,6 @@ class MiscMetadataManifestBuilder {
 class ProfilesMetadataManifestBuilder {
     def forceService
     def config
-    def packageXmlPath
-
-    static final PACKAGE_XML = 'profile-package.xml'
 
     static final TYPES = [
         'ApexClass',
@@ -582,7 +581,6 @@ class ProfilesMetadataManifestBuilder {
     ProfilesMetadataManifestBuilder(ForceService forceService, config) {
         this.forceService = forceService
         this.config = config
-        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
     }
 
     private getGroupedFileProperties() {
@@ -607,31 +605,32 @@ class ProfilesMetadataManifestBuilder {
             grouped[type] << fileProperties
         }
 
-        grouped
+        grouped.each { k, v ->
+            v.sort { a, b ->
+                a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
+            }
+        }
     }
 
-    def writePackageXml() {
+    def writePackageXmlForType(type, fileProperties) {
         def builder = new StreamingMarkupBuilder()
         builder.encoding = 'UTF-8'
 
         def xml = builder.bind {
             mkp.xmlDeclaration()
             Package(xmlns: 'http://soap.sforce.com/2006/04/metadata') {
-
-                groupedFileProperties.each { type, fileProperties ->
-                    types {
-                        fileProperties.each { fp ->
-                            members { mkp.yield fp.fullName }
-                        }
-
-                        name() { mkp.yield type}
+                types {
+                    fileProperties.each { fp ->
+                        members { mkp.yield fp.fullName }
                     }
+
+                    name() { mkp.yield type}
                 }
 
-                PERMISSON_TYPES.each { type ->
+                PERMISSON_TYPES.each { metadataType ->
                     types {
                         members '*'
-                        name type
+                        name metadataType
                     }
                 }
 
@@ -639,8 +638,124 @@ class ProfilesMetadataManifestBuilder {
             }
         }
 
-        def writer = FileWriterFactory.create(packageXmlPath)
+        def writer = FileWriterFactory.create(profilePackageXmlPath(type))
         XmlUtil.serialize(xml, writer)
+    }
+
+    def writePackageXml() {
+        groupedFileProperties.each { type, fileProperties ->
+            writePackageXmlForType type, fileProperties
+        }
+
+        writeBuildXml()
+    }
+
+    private profilePackageXmlPath(type) {
+        "${config['build.dir']}/profile-packages/${type}.xml"
+    }
+
+    private writeBuildXml() {
+        def writer = FileWriterFactory.create("${config['build.dir']}/profile-packages-target.xml")
+        def builder = new MarkupBuilder(writer)
+
+        def targetName = 'profilesPackageRetrieve'
+
+        builder.project('xmlns:sf': 'antlib:com.salesforce', 'default': targetName) {
+            'import'(file: '../ant-includes/setup-target.xml')
+
+            target(name: targetName, depends: '-setUpMetadataDir') {
+                TYPES.each { type ->
+                    def retrieveTarget = "${config['build.dir']}/profile-packages-metadata/$type"
+
+                    forceService.withValidMetadataType(type) {
+                        mkdir(dir: retrieveTarget)
+
+                        'sf:retrieve'(
+                            unpackaged: profilePackageXmlPath(type),
+                            retrieveTarget: retrieveTarget,
+                            username: '${sf.username}',
+                            password: '${sf.password}',
+                            serverurl: '${sf.serverurl}',
+                            pollWaitMillis: '${sf.pollWaitMillis}',
+                            maxPoll: '${sf.maxPoll}'
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+class XmlMergeTargetBuilder {
+    def config
+    def srcDir
+
+    XmlMergeTargetBuilder(config) {
+        this.config = config
+        srcDir = "${config['build.dir']}/profile-packages-metadata"
+    }
+
+    private getData() {
+        def data = [
+            profiles: new TreeSet(),
+            permissionsets: new TreeSet()
+        ]
+
+        def dir = new File(srcDir)
+
+        dir.eachFileRecurse (FileType.FILES) { file ->
+            if (file.name ==~ /.+\.profile$/) {
+                data.profiles << file.name
+            } else if (file.name ==~ /.+\.permissionset/) {
+                data.permissionsets <<  file.name
+            }
+        }
+
+        data
+    }
+
+    private writeBuildXml() {
+        def writer = FileWriterFactory.create("${config['build.dir']}/profile-packages-merge-target.xml")
+        def builder = new MarkupBuilder(writer)
+
+        def targetName = 'profilesPackageXmlMerge'
+        def metadataDir = "${config['build.dir']}/metadata"
+
+        builder.project('default': targetName) {
+            'import'(file: '../ant-includes/setup-target.xml')
+
+            target(name: targetName) {
+                data.each { type, filenames ->
+                    def destDir = "$metadataDir/$type"
+                    mkdir(dir: destDir)
+
+                    filenames.each { filename ->
+                        echo "Xml Merging: $filename"
+                        xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties'
+                        ) {
+                            fileset(dir: srcDir) {
+                                include(name: "**/$filename")
+                            }
+                        }
+                    }
+                }
+
+                copy(todir: metadataDir) {
+                    fileset(dir: srcDir) {
+                        include(name: '**/classes/*')
+                        include(name: '**/pages/*')
+                        include(name: '**/applications/*')
+                        include(name: '**/objects/*')
+                        include(name: '**/objectTranslations/*')
+                        include(name: '**/tabs/*')
+                        include(name: '**/layouts/*')
+                        include(name: '**/dataSources/*')
+                    }
+
+                    cutdirsmapper(dirs: 1)
+                }
+            }
+        }
     }
 }
 
@@ -654,6 +769,7 @@ static void main(args) {
     cli.with {
         b longOpt: 'build-dir', args: 1, 'build directory'
         h longOpt: 'help', 'usage information'
+        _ longOpt: 'build-xml-merge-target', 'Builds XML Merge target for Profile and PermissionSets XML files'
     }
 
     def options = cli.parse(args)
@@ -672,6 +788,13 @@ static void main(args) {
 
     def forceService = ForceServiceFactory.create('build.properties')
 
+    if (options.'build-xml-merge-target') {
+        def xmlMerge = new XmlMergeTargetBuilder(config)
+        xmlMerge.writeBuildXml()
+        return
+    }
+
+    // Default Action
 
     def bulk = new BulkMetadataManifestBuilder(forceService, config)
     bulk.writeBuildXml()
