@@ -707,7 +707,7 @@ class XmlMergeTargetBuilder {
             if (file.name ==~ /.+\.profile$/) {
                 data.profiles << file.name
             } else if (file.name ==~ /.+\.permissionset/) {
-                data.permissionSets <<  file.name
+                data.permissionsets <<  file.name
             }
         }
 
@@ -719,13 +719,14 @@ class XmlMergeTargetBuilder {
         def builder = new MarkupBuilder(writer)
 
         def targetName = 'profilesPackageXmlMerge'
+        def metadataDir = "${config['build.dir']}/metadata"
 
         builder.project('default': targetName) {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: targetName) {
                 data.each { type, filenames ->
-                    def destDir = "${config['build.dir']}/metadata/$type"
+                    def destDir = "$metadataDir/$type"
                     mkdir(dir: destDir)
 
                     filenames.each { filename ->
@@ -737,6 +738,21 @@ class XmlMergeTargetBuilder {
                             }
                         }
                     }
+                }
+
+                copy(todir: metadataDir) {
+                    fileset(dir: srcDir) {
+                        include(name: '**/classes/*')
+                        include(name: '**/pages/*')
+                        include(name: '**/applications/*')
+                        include(name: '**/objects/*')
+                        include(name: '**/objectTranslations/*')
+                        include(name: '**/tabs/*')
+                        include(name: '**/layouts/*')
+                        include(name: '**/dataSources/*')
+                    }
+
+                    cutdirsmapper(dirs: 1)
                 }
             }
         }
@@ -753,7 +769,7 @@ static void main(args) {
     cli.with {
         b longOpt: 'build-dir', args: 1, 'build directory'
         h longOpt: 'help', 'usage information'
-        _ longOpt: 'xml-merge-target', 'Builds XML Merge target for Profile and PermissionSets XML files'
+        _ longOpt: 'build-xml-merge-target', 'Builds XML Merge target for Profile and PermissionSets XML files'
     }
 
     def options = cli.parse(args)
@@ -772,7 +788,7 @@ static void main(args) {
 
     def forceService = ForceServiceFactory.create('build.properties')
 
-    if (options.'xml-merge-target') {
+    if (options.'build-xml-merge-target') {
         def xmlMerge = new XmlMergeTargetBuilder(config)
         xmlMerge.writeBuildXml()
         return

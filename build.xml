@@ -8,20 +8,28 @@
 
   <import file="ant-includes/list-targets.xml" />
 
+  <macrodef name="forceMetaBackup">
+    <attribute name="args" default="" />
+
+    <sequential>
+      <property name="force.meta.backup.script" value="force-meta-backup.groovy" />
+
+      <exec osfamily="unix" executable="${force.meta.backup.script}" resolveexecutable="true">
+        <arg line="@{args}" />
+      </exec>
+
+      <exec osfamily="windows" executable="cmd">
+        <arg line="/c ${env.GROOVY_HOME}/bin/groovy.bat ${force.meta.backup.script} @{args}" />
+      </exec>
+    </sequential>
+  </macrodef>
+
   <target name="clean">
     <delete dir="${build.dir}" />
   </target>
 
   <target name="generatePackageXmlAndBuildXml" depends="-setUp">
-    <property name="script.name" value="force-meta-backup.groovy" />
-
-    <exec osfamily="unix" executable="${script.name}" resolveexecutable="true" />
-
-    <exec osfamily="windows" executable="cmd">
-      <arg value="/c"/>
-      <arg value="${env.GROOVY_HOME}/bin/groovy.bat"/>
-      <arg file="${script.name}" />
-    </exec>
+    <forceMetaBackup />
   </target>
 
   <target name="bulkRetrievable" depends="generatePackageXmlAndBuildXml, -setUpMetadataDir">
@@ -40,34 +48,12 @@
     <antcall target="xmlMergeProfilesAndPermissions" />
   </target>
 
-  <target name="test">
-    <xmlmerge dest="${build.dir}/mereged-Accounting.profile" conf="xmlmerge.properties" >
-      <fileset dir="${build.dir}/profile-packages-metadata">
-        <include name="**/Accounting.profile" />
-      </fileset>
-    </xmlmerge>
-  </target>
-
   <target name="backupMetadata" depends="clean,bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
   </target>
 
-  <target name="xmlMergeProfilesAndPermissions" depends="generateXmlMergeTarget">
+  <target name="xmlMergeProfilesAndPermissions">
+    <forceMetaBackup args="--build-xml-merge-target" />
     <ant antfile="${build.dir}/profile-packages-merge-target.xml" />
-  </target>
-
-  <target name="generateXmlMergeTarget">
-    <property name="script.name" value="force-meta-backup.groovy" />
-
-    <exec osfamily="unix" executable="${script.name}" resolveexecutable="true">
-      <arg value="--xml-merge-target" />
-    </exec>
-
-    <exec osfamily="windows" executable="cmd">
-      <arg value="/c"/>
-      <arg value="${env.GROOVY_HOME}/bin/groovy.bat"/>
-      <arg file="${script.name}" />
-      <arg value="--xml-merge-target" />
-    </exec>
   </target>
 
   <target name="-sfRetrieve">
