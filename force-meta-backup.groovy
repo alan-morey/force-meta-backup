@@ -651,7 +651,7 @@ class ProfilesMetadataManifestBuilder {
     }
 
     private profilePackageXmlPath(type) {
-        "${config['build.dir']}/profile-packages/$type.xml"
+        "${config['build.dir']}/profile-packages/${type}.xml"
     }
 
     private writeBuildXml() {
