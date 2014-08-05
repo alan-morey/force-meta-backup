@@ -8,6 +8,8 @@
 
   <import file="ant-includes/list-targets.xml" />
 
+  <property environment="env"/>
+
   <macrodef name="forceMetaBackup">
     <attribute name="args" default="" />
 
