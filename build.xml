@@ -14,11 +14,11 @@
     <sequential>
       <property name="force.meta.backup.script" value="force-meta-backup.groovy" />
 
-      <exec osfamily="unix" executable="${force.meta.backup.script}" resolveexecutable="true">
+      <exec osfamily="unix" executable="${force.meta.backup.script}" resolveexecutable="true" failonerror="true">
         <arg line="@{args}" />
       </exec>
 
-      <exec osfamily="windows" executable="cmd">
+      <exec osfamily="windows" executable="cmd" failonerror="true">
         <arg line="/c ${env.GROOVY_HOME}/bin/groovy.bat ${force.meta.backup.script} @{args}" />
       </exec>
     </sequential>
