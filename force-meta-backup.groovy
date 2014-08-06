@@ -228,9 +228,9 @@ class BulkMetadataManifestBuilder {
         'AccountSharingRules',
         'AccountTerritorySharingRules',
         'AnalyticSnapshot',
-        'AppMenu',
         'ApexComponent',
         'ApexTrigger',
+        'AppMenu',
         'ApprovalProcess',
         'ArticleType',
         'AssignmentRules',
@@ -240,6 +240,7 @@ class BulkMetadataManifestBuilder {
         'CampaignSharingRules',
         'CaseSharingRules',
         'Community',
+        'ConnectedApp',
         'ContactSharingRules',
         'CustomApplicationComponent',
         'CustomLabels',
@@ -272,9 +273,9 @@ class BulkMetadataManifestBuilder {
         'Scontrol',
         'Settings',
         'SharingSet',
+        'SiteDotCom',
         'Skill',
         'StaticResource',
-        'SiteDotCom',
         'Territory',
         'Workflow'
     ]
@@ -473,7 +474,6 @@ class MiscMetadataManifestBuilder {
     static final PACKAGE_XML = 'misc-package.xml'
 
     static final TYPES = [
-        'Letterhead',
         'AccountCriteriaBasedSharingRule',
         'AccountOwnerSharingRule',
         'AccountSharingRules',
@@ -492,6 +492,7 @@ class MiscMetadataManifestBuilder {
         'LeadCriteriaBasedSharingRule',
         'LeadOwnerSharingRule',
         'LeadSharingRules',
+        'Letterhead',
         'OpportunityCriteriaBasedSharingRule',
         'OpportunityOwnerSharingRule',
         'OpportunitySharingRules',
@@ -568,6 +569,7 @@ class ProfilesMetadataManifestBuilder {
         'CustomApplication',
         'CustomObject',
         'CustomObjectTranslation',
+        'CustomPermission',
         'CustomTab',
         'ExternalDataSource',
         'Layout'
