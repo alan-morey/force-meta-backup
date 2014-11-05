@@ -562,6 +562,7 @@ class MiscMetadataManifestBuilder {
 class ProfilesMetadataManifestBuilder {
     def forceService
     def config
+    def groupedFileProps
 
     static final TYPES = [
         'ApexClass',
@@ -584,34 +585,40 @@ class ProfilesMetadataManifestBuilder {
         this.forceService = forceService
         this.config = config
     }
-
     private getGroupedFileProperties() {
-        def queries = TYPES.collect { type ->
-            forceService.withValidMetadataType(type) {
-                def query = new ListMetadataQuery()
-                query.type = it
-                query
+        if (groupedFileProps == null) {
+            
+            def queries = TYPES.collect { type ->
+                forceService.withValidMetadataType(type) {
+                    def query = new ListMetadataQuery()
+                    query.type = it
+                    query
+                }
             }
-        }
-        queries.removeAll([null])
+            queries.removeAll([null])
 
-        def grouped = [:]
+            def grouped = [:]
 
-        forceService.listMetadata(queries).each { fileProperties ->
-            def type = fileProperties.type
+            forceService.listMetadata(queries).each { fileProperties ->
+                def type = fileProperties.type
 
-            if (!grouped.containsKey(type)) {
-                grouped[type] = []
+                if (!grouped.containsKey(type)) {
+                    grouped[type] = []
+                }
+
+                grouped[type] << fileProperties
             }
 
-            grouped[type] << fileProperties
+            grouped.each { k, v ->
+                v.sort { a, b ->
+                    a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
+                }
+            }
+
+            groupedFileProps = grouped
         }
 
-        grouped.each { k, v ->
-            v.sort { a, b ->
-                a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
-            }
-        }
+        groupedFileProps
     }
 
     def writePackageXmlForType(type, fileProperties) {
@@ -666,7 +673,7 @@ class ProfilesMetadataManifestBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: targetName, depends: '-setUpMetadataDir') {
-                TYPES.each { type ->
+                groupedFileProperties.each { type, fileProperties ->
                     def retrieveTarget = "${config['build.dir']}/profile-packages-metadata/$type"
 
                     forceService.withValidMetadataType(type) {
@@ -742,6 +749,7 @@ class XmlMergeTargetBuilder {
                     }
                 }
 
+                // TODO maybe we can dynamically build this list of folders/files to be copied
                 copy(todir: metadataDir) {
                     fileset(dir: srcDir) {
                         include(name: '**/classes/*')
@@ -749,6 +757,7 @@ class XmlMergeTargetBuilder {
                         include(name: '**/applications/*')
                         include(name: '**/objects/*')
                         include(name: '**/objectTranslations/*')
+                        include(name: '**/customPermissions/*');
                         include(name: '**/tabs/*')
                         include(name: '**/layouts/*')
                         include(name: '**/dataSources/*')
