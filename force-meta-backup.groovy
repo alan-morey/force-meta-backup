@@ -234,6 +234,7 @@ class BulkMetadataManifestBuilder {
         'ApprovalProcess',
         'ArticleType',
         'AssignmentRules',
+        'AuraDefinitionBundle',
         'AuthProvider',
         'AutoResponseRules',
         'CallCenter',
@@ -242,6 +243,7 @@ class BulkMetadataManifestBuilder {
         'Community',
         'ConnectedApp',
         'ContactSharingRules',
+        'CorsWhitelistOrigin',
         'CustomApplicationComponent',
         'CustomLabels',
         'CustomPageWebLink',
@@ -259,6 +261,7 @@ class BulkMetadataManifestBuilder {
         'LiveChatAgentConfig',
         'LiveChatButton',
         'LiveChatDeployment',
+        'ManagedTopics',
         'MilestoneType',
         'Network',
         'OpportunitySharingRules',
@@ -276,8 +279,16 @@ class BulkMetadataManifestBuilder {
         'SiteDotCom',
         'Skill',
         'StaticResource',
+        'SynonymDictionary',
         'Territory',
-        'Workflow'
+        'Territory2',
+        'Territory2Model',
+        'Territory2Rule',
+        'Territory2Settings',
+        'Territory2Type',
+        'Workflow',
+        'XOrgHub',
+        'XOrgHubSharedObject'
     ]
 
     BulkMetadataManifestBuilder(ForceService forceService, config) {
