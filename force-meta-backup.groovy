@@ -227,6 +227,7 @@ class BulkMetadataManifestBuilder {
     static TYPES = [
         'AccountSharingRules',
         'AccountTerritorySharingRules',
+        'ActionLinkGroupTemplate',
         'AnalyticSnapshot',
         'ApexComponent',
         'ApexTrigger',
@@ -262,7 +263,9 @@ class BulkMetadataManifestBuilder {
         'LiveChatButton',
         'LiveChatDeployment',
         'ManagedTopics',
+        'MatchingRule',
         'MilestoneType',
+        'NamedCredential',
         'Network',
         'OpportunitySharingRules',
         'Portal',
