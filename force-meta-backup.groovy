@@ -225,8 +225,7 @@ class BulkMetadataManifestBuilder {
     static final BUILD_XML = 'bulk-retrievable-target.xml'
 
     static TYPES = [
-        'AccountSharingRules',
-        'AccountTerritorySharingRules',
+        'ActionLinkGroupTemplate',
         'AnalyticSnapshot',
         'ApexComponent',
         'ApexTrigger',
@@ -238,11 +237,8 @@ class BulkMetadataManifestBuilder {
         'AuthProvider',
         'AutoResponseRules',
         'CallCenter',
-        'CampaignSharingRules',
-        'CaseSharingRules',
         'Community',
         'ConnectedApp',
-        'ContactSharingRules',
         'CorsWhitelistOrigin',
         'CustomApplicationComponent',
         'CustomLabels',
@@ -262,9 +258,10 @@ class BulkMetadataManifestBuilder {
         'LiveChatButton',
         'LiveChatDeployment',
         'ManagedTopics',
+        'MatchingRule',
         'MilestoneType',
+        'NamedCredential',
         'Network',
-        'OpportunitySharingRules',
         'Portal',
         'PostTemplate',
         'Queue',
@@ -275,7 +272,10 @@ class BulkMetadataManifestBuilder {
         'SamlSsoConfig',
         'Scontrol',
         'Settings',
+        'SharingCriteriaRule',
+        'SharingOwnerRule',
         'SharingSet',
+        'SharingTerritoryRule',
         'SiteDotCom',
         'Skill',
         'StaticResource',
@@ -485,30 +485,7 @@ class MiscMetadataManifestBuilder {
     static final PACKAGE_XML = 'misc-package.xml'
 
     static final TYPES = [
-        'AccountCriteriaBasedSharingRule',
-        'AccountOwnerSharingRule',
-        'AccountSharingRules',
-        'CampaignCriteriaBasedSharingRule',
-        'CampaignOwnerSharingRule',
-        'CampaignSharingRules',
-        'CaseCriteriaBasedSharingRule',
-        'CaseOwnerSharingRule',
-        'CaseSharingRules',
-        'ContactCriteriaBasedSharingRule',
-        'ContactOwnerSharingRule',
-        'ContactSharingRules',
-        'CustomObjectCriteriaBasedSharingRule',
-        'CustomObjectOwnerSharingRule',
-        'CustomObjectSharingRules',
-        'LeadCriteriaBasedSharingRule',
-        'LeadOwnerSharingRule',
-        'LeadSharingRules',
         'Letterhead',
-        'OpportunityCriteriaBasedSharingRule',
-        'OpportunityOwnerSharingRule',
-        'OpportunitySharingRules',
-        'UserCriteriaBasedSharingRule',
-        'UserMembershipSharingRule'
     ]
 
     MiscMetadataManifestBuilder(ForceService forceService, config) {
