@@ -241,7 +241,9 @@ class BulkMetadataManifestBuilder {
         'ConnectedApp',
         'CorsWhitelistOrigin',
         'CustomApplicationComponent',
+        'CustomFeedFilter',
         'CustomLabels',
+        'CustomMetadata',
         'CustomPageWebLink',
         'CustomSite',
         'DataCategoryGroup',
@@ -249,7 +251,7 @@ class BulkMetadataManifestBuilder {
         'EntitlementTemplate',
         'EscalationRules',
         'FlexiPage',
-        'Flow',
+        'FlowDefinition',
         'Group',
         'HomePageComponent',
         'HomePageLayout',
@@ -257,11 +259,14 @@ class BulkMetadataManifestBuilder {
         'LiveChatAgentConfig',
         'LiveChatButton',
         'LiveChatDeployment',
+        'LiveChatSensitiveDataRule',
         'ManagedTopics',
         'MatchingRule',
         'MilestoneType',
         'NamedCredential',
         'Network',
+        'PathAssistant',
+        'PlatformCachePartition',
         'Portal',
         'PostTemplate',
         'Queue',
@@ -286,6 +291,7 @@ class BulkMetadataManifestBuilder {
         'Territory2Rule',
         'Territory2Settings',
         'Territory2Type',
+        'TransactionSecurityPolicy',
         'Workflow',
         'XOrgHub',
         'XOrgHubSharedObject'
@@ -365,16 +371,14 @@ class Folders {
                     types {
 
                         folders.each { folderName ->
-                            members {
-                                mkp.yield folderName
-                            }
+                            members folderName 
                         }
 
-                        name() { mkp.yield folderMetaTypeByFolderType[folderType] }
+                        name folderMetaTypeByFolderType[folderType]
                     }
                 }
 
-                version { mkp.yield forceService.apiVersion }
+                version forceService.apiVersion
             }
         }
 
@@ -485,7 +489,15 @@ class MiscMetadataManifestBuilder {
     static final PACKAGE_XML = 'misc-package.xml'
 
     static final TYPES = [
-        'Letterhead',
+        'Letterhead'
+    ]
+
+    static final WILDCARD_TYPES = [ 
+        // XXX Salesforce can't retrieve Flow by bulkRetrieve, the active
+        // version number need to be applied to the fullName. I think only way
+        // to find that is in FlowDefinition and that would require parsing
+        // Using * wildcard simplifiies the retrieval for Flows.
+        'Flow'
     ]
 
     MiscMetadataManifestBuilder(ForceService forceService, config) {
@@ -531,14 +543,21 @@ class MiscMetadataManifestBuilder {
                 groupedFileProperties.each { type, fileProperties ->
                     types {
                         fileProperties.each { fp ->
-                            members { mkp.yield fp.fullName }
+                            members fp.fullName
                         }
 
-                         name() { mkp.yield type}
+                        name type
                     }
                 }
 
-                version { mkp.yield forceService.apiVersion }
+                WILDCARD_TYPES.each { type ->
+                    types {
+                        members '*'
+                        name type
+                    }
+                }
+
+                version forceService.apiVersion
             }
         }
 
@@ -573,6 +592,7 @@ class ProfilesMetadataManifestBuilder {
         this.forceService = forceService
         this.config = config
     }
+
     private getGroupedFileProperties() {
         if (groupedFileProps == null) {
             
@@ -613,18 +633,24 @@ class ProfilesMetadataManifestBuilder {
         def builder = new StreamingMarkupBuilder()
         builder.encoding = 'UTF-8'
 
+        def WILDCARD_TYPES = [] + PERMISSON_TYPES;
+        if (type == 'Layout') {
+            // Note: Page Layout assignments require Layouts & RecordType to be retrieved with Profile 
+            WILDCARD_TYPES << 'RecordType'
+        }
+
         def xml = builder.bind {
             mkp.xmlDeclaration()
             Package(xmlns: 'http://soap.sforce.com/2006/04/metadata') {
                 types {
                     fileProperties.each { fp ->
-                        members { mkp.yield fp.fullName }
+                        members fp.fullName
                     }
 
-                    name() { mkp.yield type}
+                    name type
                 }
 
-                PERMISSON_TYPES.each { metadataType ->
+                WILDCARD_TYPES.each { metadataType ->
                     types {
                         members '*'
                         name metadataType
