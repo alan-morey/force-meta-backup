@@ -631,10 +631,27 @@ class ProfilesMetadataManifestBuilder {
         def builder = new StreamingMarkupBuilder()
         builder.encoding = 'UTF-8'
 
+        def resolveName = { FileProperties fp ->
+            fp.fullName
+        }
+
         def WILDCARD_TYPES = [] + PERMISSON_TYPES;
+
         if (type == 'Layout') {
             // Note: Page Layout assignments require Layouts & RecordType to be retrieved with Profile 
             WILDCARD_TYPES << 'RecordType'
+
+            // Layouts in managed pacakges must have namespace prefix
+            resolveName = { FileProperties fp ->
+                if (fp.namespacePrefix) {
+                    def namespace = fp.namespacePrefix + '__'
+                    def seperator = '-'
+
+                    return fp.fullName.replace(seperator, seperator + namespace)
+                }
+
+                fp.fullName
+            }
         }
 
         def xml = builder.bind {
@@ -642,7 +659,7 @@ class ProfilesMetadataManifestBuilder {
             Package(xmlns: 'http://soap.sforce.com/2006/04/metadata') {
                 types {
                     fileProperties.each { fp ->
-                        members fp.fullName
+                        members resolveName(fp)
                     }
 
                     name type
