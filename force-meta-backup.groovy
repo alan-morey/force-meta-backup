@@ -344,7 +344,8 @@ class Folders {
         Dashboard: 'Dashboard',
         Document: 'Document',
         Email: 'EmailTemplate',
-        Report: 'Report'
+        Report: 'Report',
+        Insights: 'Report'
     ]
 
     Folders(ForceService forceService, config) {
