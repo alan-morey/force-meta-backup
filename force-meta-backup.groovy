@@ -167,6 +167,19 @@ class ForceService {
         fileProperties
     }
 
+    def listMetadataForTypes(types) {
+        def queries = types.collect { type ->
+            withValidMetadataType(type) {
+                def query = new ListMetadataQuery()
+                query.type = it
+                query
+            }
+        }
+        queries.removeAll([null])
+        
+        listMetadata(queries)
+    }
+
     private buildConnectionUrl = { serverUrl, username, password ->
         def encode = { URLEncoder.encode(it, 'UTF-8') }
 
@@ -517,28 +530,18 @@ class MiscMetadataManifestBuilder {
 
 
     private getGroupedFileProperties() {
-        def queries = TYPES.collect { type ->
-            forceService.withValidMetadataType(type) {
-                def query = new ListMetadataQuery()
-                query.type = it
-                query
-            }
-        }
-        queries.removeAll([null])
+        def grouped = new GroupedFileProperties(
+            forceService.listMetadataForTypes(TYPES)
+        )
 
-        def grouped = [:]
+        // XXX - Hack to always retrieve the CaseComment SObject & Workflow.
+        //
+        // For some reason CaseComment is not returned in listMetadata()
+        // calls for CustomObject and Workflow but if we explicitly put
+        // these in package.xml for retrieve we can download them.
+        grouped.addIfMissingStandard('Workflow', 'CaseComment')
 
-        forceService.listMetadata(queries).each { fileProperties ->
-            def type = fileProperties.type
-
-            if (!grouped.containsKey(type)) {
-                grouped[type] = []
-            }
-
-            grouped[type] << fileProperties
-        }
-
-        grouped
+        grouped.filePropertiesByType
     }
 
     def writePackageXml() {
@@ -575,6 +578,73 @@ class MiscMetadataManifestBuilder {
     }
 }
 
+class GroupedFileProperties {
+    static final String NO_NAMESPACE = null;
+    static final String STANDARD_NAMESPACE = '';
+
+    def filePropertiesByType = [:]
+
+    GroupedFileProperties() {
+    }
+
+    GroupedFileProperties(List<FileProperties> fileProperties) {
+        addAll(fileProperties)
+    }
+
+    GroupedFileProperties addAll(List<FileProperties> fileProperties) {
+        fileProperties.each { fp ->
+            add(fp)
+        }
+
+        this
+    }
+
+    GroupedFileProperties add(FileProperties fp) {
+        if (!containsGroup(fp.type)) {
+            filePropertiesByType[fp.type] = []
+        }
+
+        filePropertiesByType[fp.type] << fp
+
+        this
+    }
+    
+    GroupedFileProperties addIfMissingStandard(String type, String fullName) {
+        addIfMissing(type, fullName, STANDARD_NAMESPACE)
+    }
+    
+    GroupedFileProperties addIfMissingCustom(String type, String fullName) {
+        addIfMissing(type, fullName, NO_NAMESPACE)
+    }
+
+    GroupedFileProperties addIfMissing(String type, String fullName, String namespacePrefix) {
+        addIfMissing([
+            type: type,
+            fullName: fullName,
+            namespacePrefix: namespacePrefix
+        ] as FileProperties)
+    }
+
+    GroupedFileProperties addIfMissing(FileProperties fp) {
+        if (!contains(fp.type, fp.fullName, fp.namespacePrefix)) {
+            add(fp)
+        }
+
+        this
+    }
+
+    Boolean containsGroup(String type) {
+        filePropertiesByType.containsKey(type)
+    }
+
+    Boolean contains(String type, String fullName, String namespacePrefix) {
+        containsGroup(type) && filePropertiesByType[type].find {
+            it.fullName == fullName &&
+            it.namespacePrefix == namespacePrefix
+        }
+    }
+}
+
 class ProfilesMetadataManifestBuilder {
     def forceService
     def config
@@ -604,39 +674,30 @@ class ProfilesMetadataManifestBuilder {
 
     private getGroupedFileProperties() {
         if (groupedFileProps == null) {
-            
-            def queries = TYPES.collect { type ->
-                forceService.withValidMetadataType(type) {
-                    def query = new ListMetadataQuery()
-                    query.type = it
-                    query
-                }
-            }
-            queries.removeAll([null])
+            def grouped = new GroupedFileProperties(
+                forceService.listMetadataForTypes(TYPES)
+            )
 
-            def grouped = [:]
+            // XXX - Hack to always retrieve the CaseComment SObject & Workflow.
+            //
+            // For some reason CaseComment is not returned in listMetadata()
+            // calls for CustomObject and Workflow but if we explicitly put
+            // these in package.xml for retrieve we can download them.
+            grouped.addIfMissingStandard('CustomObject', 'CaseComment')
 
-            forceService.listMetadata(queries).each { fileProperties ->
-                def type = fileProperties.type
 
-                if (!grouped.containsKey(type)) {
-                    grouped[type] = []
-                }
-
-                grouped[type] << fileProperties
-            }
-
-            grouped.each { k, v ->
+            grouped.filePropertiesByType.each { k, v ->
                 v.sort { a, b ->
                     a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
                 }
             }
 
-            groupedFileProps = grouped
+            groupedFileProps = grouped.filePropertiesByType
         }
 
         groupedFileProps
     }
+
 
     def writePackageXmlForType(type, fileProperties) {
         def builder = new StreamingMarkupBuilder()
