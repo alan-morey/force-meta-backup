@@ -342,17 +342,19 @@ class BulkMetadataManifestBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: 'bulkRetrievable', depends: '-setUpMetadataDir') {
-                TYPES.each { type ->
-                    forceService.withValidMetadataType(type) {
-                        'sf:bulkRetrieve'(
-                            metadataType: it,
-                            retrieveTarget: '${build.metadata.dir}',
-                            username: '${sf.username}',
-                            password: '${sf.password}',
-                            serverurl: '${sf.serverurl}',
-                            pollWaitMillis: '${sf.pollWaitMillis}',
-                            maxPoll: '${sf.maxPoll}'
-                        )
+                parallel(threadCount: 4) {
+                    TYPES.each { type ->
+                        forceService.withValidMetadataType(type) {
+                            'sf:bulkRetrieve'(
+                                metadataType: it,
+                                retrieveTarget: '${build.metadata.dir}',
+                                username: '${sf.username}',
+                                password: '${sf.password}',
+                                serverurl: '${sf.serverurl}',
+                                pollWaitMillis: '${sf.pollWaitMillis}',
+                                maxPoll: '${sf.maxPoll}'
+                            )
+                        }
                     }
                 }
             }
@@ -426,28 +428,30 @@ class Folders {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: 'bulkRetrieveFolders', depends: '-setUpMetadataDir') {
-                'sf:retrieve'(
-                    unpackaged: packageXmlPath,
-                    retrieveTarget: '${build.metadata.dir}',
-                    username: '${sf.username}',
-                    password: '${sf.password}',
-                    serverurl: '${sf.serverurl}',
-                    pollWaitMillis: '${sf.pollWaitMillis}',
-                    maxPoll: '${sf.maxPoll}'
-                )
+                parallel(threadCount: 4) {
+                    'sf:retrieve'(
+                        unpackaged: packageXmlPath,
+                        retrieveTarget: '${build.metadata.dir}',
+                        username: '${sf.username}',
+                        password: '${sf.password}',
+                        serverurl: '${sf.serverurl}',
+                        pollWaitMillis: '${sf.pollWaitMillis}',
+                        maxPoll: '${sf.maxPoll}'
+                    )
 
-                allFolders.each { folderType, folders ->
-                    folders.each { folderName ->
-                        'sf:bulkRetrieve'(
-                            metadataType: folderMetaTypeByFolderType[folderType],
-                            containingFolder: folderName,
-                            retrieveTarget: '${build.metadata.dir}',
-                            username: '${sf.username}',
-                            password: '${sf.password}',
-                            serverurl: '${sf.serverurl}',
-                            pollWaitMillis: '${sf.pollWaitMillis}',
-                            maxPoll: '${sf.maxPoll}'
-                        )
+                    allFolders.each { folderType, folders ->
+                        folders.each { folderName ->
+                            'sf:bulkRetrieve'(
+                                metadataType: folderMetaTypeByFolderType[folderType],
+                                containingFolder: folderName,
+                                retrieveTarget: '${build.metadata.dir}',
+                                username: '${sf.username}',
+                                password: '${sf.password}',
+                                serverurl: '${sf.serverurl}',
+                                pollWaitMillis: '${sf.pollWaitMillis}',
+                                maxPoll: '${sf.maxPoll}'
+                            )
+                        }
                     }
                 }
             }
@@ -784,21 +788,25 @@ class ProfilesMetadataManifestBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: targetName, depends: '-setUpMetadataDir') {
-                groupedFileProperties.each { type, fileProperties ->
-                    def retrieveTarget = "${config['build.dir']}/profile-packages-metadata/$type"
+                parallel(threadCount: 4) {
+                    groupedFileProperties.each { type, fileProperties ->
+                        def retrieveTarget = "${config['build.dir']}/profile-packages-metadata/$type"
 
-                    forceService.withValidMetadataType(type) {
-                        mkdir(dir: retrieveTarget)
+                        sequential {
+                            forceService.withValidMetadataType(type) {
+                                mkdir(dir: retrieveTarget)
 
-                        'sf:retrieve'(
-                            unpackaged: profilePackageXmlPath(type),
-                            retrieveTarget: retrieveTarget,
-                            username: '${sf.username}',
-                            password: '${sf.password}',
-                            serverurl: '${sf.serverurl}',
-                            pollWaitMillis: '${sf.pollWaitMillis}',
-                            maxPoll: '${sf.maxPoll}'
-                        )
+                                'sf:retrieve'(
+                                    unpackaged: profilePackageXmlPath(type),
+                                    retrieveTarget: retrieveTarget,
+                                    username: '${sf.username}',
+                                    password: '${sf.password}',
+                                    serverurl: '${sf.serverurl}',
+                                    pollWaitMillis: '${sf.pollWaitMillis}',
+                                    maxPoll: '${sf.maxPoll}'
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -848,13 +856,16 @@ class XmlMergeTargetBuilder {
                 data.each { type, filenames ->
                     def destDir = "$metadataDir/$type"
                     mkdir(dir: destDir)
-
-                    filenames.each { filename ->
-                        echo "Xml Merging: $filename"
-                        xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties'
-                        ) {
-                            fileset(dir: srcDir) {
-                                include(name: "**/$filename")
+                        
+                    parallel(threadCount: 4) {
+                        filenames.each { filename ->
+                            sequential {
+                                echo "Xml Merging: $filename"
+                                xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties') {
+                                    fileset(dir: srcDir) {
+                                        include(name: "**/$filename")
+                                    }
+                                }
                             }
                         }
                     }
