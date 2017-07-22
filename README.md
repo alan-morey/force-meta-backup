@@ -37,3 +37,15 @@ Groovy Version: 2.1.5 JVM: 1.7.0_51 Vendor: Oracle Corporation OS: Linux
 - Open command prompt and enter command `ant backupMetadata`
 
 The results will be downloaded to `build/metadata`
+
+
+## How to exclude types from backup
+To exclude specific metadata types from backup you can specify a comma list of 
+metadata types in the `build.properties`.
+
+For example to exclude Reports and Documents form backup add the following line
+to `build.properties`
+
+```
+sf.excludeTypes=Report,Document
+```
