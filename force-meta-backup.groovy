@@ -194,7 +194,18 @@ class ForceService {
 }
 
 class ForceServiceFactory {
-    static create(propFileName) {
+    static create(ConfigObject config) {
+        new ForceService(
+            config.sf.serverurl.toString(),
+            config.sf.username.toString(),
+            config.sf.password.toString(),
+            config.sf.antlib.version.toString()
+        )
+    }
+}
+
+class Configuration {
+    private static ConfigObject load(propFileName) {
         def loadProperties = {
             def props = new Properties()
             def inputStream = getClass().getResourceAsStream(it)
@@ -206,14 +217,34 @@ class ForceServiceFactory {
         }
 
         def config = loadProperties 'ant-includes/default.properties'
-        config = config.merge(loadProperties(propFileName))
+        config.merge(loadProperties(propFileName))
+    }
 
-        new ForceService(
-            config.sf.serverurl,
-            config.sf.username,
-            config.sf.password,
-            config.sf.antlib.version
-        )
+    static ConfigObject build(propFileName, cliOptions) {
+        ConfigObject config = new ConfigObject()
+        config.putAll([
+            buildDir: 'build'
+        ])
+        config.merge(load(propFileName))
+
+        def excludeTypes = [] as Set
+        if (config.sf.excludeTypes) {
+            excludeTypes.addAll(config.sf.excludeTypes.split(',').collect {
+                it.trim().toLowerCase()
+            })
+
+            config.sf.remove('excludeTypes')
+        }
+
+        config.put('excludeTypes', excludeTypes)
+
+
+        if (cliOptions.'build-dir') {
+            config.buildDir = cliOptions.'build-dir'
+        }
+
+        config
+
     }
 }
 
@@ -230,9 +261,23 @@ class FileWriterFactory {
     }
 }
 
-class BulkMetadataManifestBuilder {
-    def forceService
-    def config
+abstract class ManifestBuilder {
+    protected def forceService
+    protected def config
+
+    protected ManifestBuilder(forceService, config) {
+        this.forceService = forceService
+        this.config = config
+    }
+
+    def isExcluded(metadataType) {
+        config.excludeTypes.contains(metadataType.toLowerCase())
+    }
+
+    abstract void writeManifest() 
+}
+
+class BulkMetadataManifestBuilder extends ManifestBuilder {
     def buildXmlPath
 
     static final BUILD_XML = 'bulk-retrievable-target.xml'
@@ -333,12 +378,12 @@ class BulkMetadataManifestBuilder {
     ]
 
     BulkMetadataManifestBuilder(ForceService forceService, config) {
-        this.forceService = forceService
-        this.config = config
-        buildXmlPath = "${config['build.dir']}/${BUILD_XML}"
+        super(forceService, config)
+
+        buildXmlPath = "$config.buildDir/$BUILD_XML"
     }
 
-    def writeBuildXml() {
+    void writeManifest() {
         def writer = FileWriterFactory.create(buildXmlPath)
         def builder = new MarkupBuilder(writer)
 
@@ -347,7 +392,9 @@ class BulkMetadataManifestBuilder {
 
             target(name: 'bulkRetrievable', depends: '-setUpMetadataDir') {
                 parallel(threadCount: 4) {
-                    TYPES.each { type ->
+                    TYPES.findAll {
+                        !isExcluded(it)
+                    }.each { type ->
                         forceService.withValidMetadataType(type) {
                             'sf:bulkRetrieve'(
                                 metadataType: it,
@@ -366,9 +413,7 @@ class BulkMetadataManifestBuilder {
     }
 }
 
-class Folders {
-    def forceService
-    def config
+class Folders extends ManifestBuilder {
     def packageXmlPath
     def buildXmlPath
     
@@ -384,22 +429,36 @@ class Folders {
     ]
 
     Folders(ForceService forceService, config) {
-        this.forceService = forceService
-        this.config = config
-        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
-        buildXmlPath = "${config['build.dir']}/${BUILD_XML}"
+        super(forceService, config)
+
+        packageXmlPath = "$config.buildDir/$PACKAGE_XML"
+        buildXmlPath = "$config.buildDir/$BUILD_XML"
     }
 
-    def writeFoldersPackageXml() {
+    void writeManifest() {
+        def allFolders = fetchAllFolders()
+        def foldersAndUnfiled = [:] + allFolders
+
+        def unfiledFetchMap = [
+            Email: 'fetchUnfiledPublicEmailTemplates',
+            Report: 'fetchUnfiledPublicReports'
+        ]
+        
+        unfiledFetchMap.each { folderType, fetchMethod ->
+            def metadataType = folderMetaTypeByFolderType[folderType]
+
+            if (!isExcluded(metadataType)) {
+                foldersAndUnfiled[folderType] = foldersAndUnfiled[folderType] ?: []
+                foldersAndUnfiled[folderType] += "$fetchMethod"()
+            }
+        }
+
+        writeFolderBulkRetriveXml(allFolders)
+        writeFoldersPackageXml(foldersAndUnfiled)
+    }
+
+    private void writeFoldersPackageXml(foldersAndUnfiled) {
         def builder = new StreamingMarkupBuilder()
-
-        def foldersAndUnfiled = allFolders
-
-        foldersAndUnfiled['Email'] = (foldersAndUnfiled['Email']) ?: []
-        foldersAndUnfiled['Email'] += fetchUnfiledPublicEmailTemplates()
-
-        foldersAndUnfiled['Report'] = (foldersAndUnfiled['Report']) ?: []
-        foldersAndUnfiled['Report'] += fetchUnfiledPublicReports()
 
         builder.encoding = 'UTF-8'
         def xml = builder.bind {
@@ -424,7 +483,7 @@ class Folders {
         XmlUtil.serialize(xml, writer)
     }
 
-    def writeFolderBulkRetriveXml() {
+    private void writeFolderBulkRetriveXml(allFolders) {
         def writer = FileWriterFactory.create(buildXmlPath)
         def builder = new MarkupBuilder(writer)
 
@@ -462,10 +521,6 @@ class Folders {
         }
     }
 
-    def getAllFolders() {
-        fetchAllFolders()
-    }
-
     private fetchAllFolders() {
         def soql = "SELECT NamespacePrefix, DeveloperName, Type FROM Folder WHERE DeveloperName != '' ORDER BY Type, NamespacePrefix, DeveloperName"
         def sObjects = forceService.query soql
@@ -486,18 +541,24 @@ class Folders {
             folders[type] << "$prefix$name"
         }
 
+        folderMetaTypeByFolderType.each { folderType, metadataType ->
+            if (isExcluded(metadataType)) {
+                folders.remove(folderType)
+            }
+        }
+
         folders
     }
 
     private fetchUnfiledPublicEmailTemplates() {
-        def soql = "SELECT DeveloperName FROM EmailTemplate WHERE FolderId = '${forceService.organizationId}'"
+        def soql = "SELECT DeveloperName FROM EmailTemplate WHERE FolderId = '$forceService.organizationId'"
 
         fetchUnfiled soql
     }
         
 
     private fetchUnfiledPublicReports() {
-        def soql = "SELECT DeveloperName FROM Report WHERE OwnerId = '${forceService.organizationId}'"
+        def soql = "SELECT DeveloperName FROM Report WHERE OwnerId = '$forceService.organizationId'"
 
         fetchUnfiled soql
     }
@@ -521,9 +582,7 @@ class Folders {
     }
 }
 
-class MiscMetadataManifestBuilder {
-    def forceService
-    def config
+class MiscMetadataManifestBuilder extends ManifestBuilder {
     def packageXmlPath
     
     static final PACKAGE_XML = 'misc-package.xml'
@@ -535,17 +594,17 @@ class MiscMetadataManifestBuilder {
     static final WILDCARD_TYPES = [ 
         // XXX Salesforce can't retrieve Flow by bulkRetrieve, the active
         // version number need to be applied to the fullName. I think only way
-        // to find that is in FlowDefinition and that would require parsing
+        // to find that is in FlowDefinition and that would require parsing.
+        //
         // Using * wildcard simplifiies the retrieval for Flows.
         'Flow'
     ]
 
     MiscMetadataManifestBuilder(ForceService forceService, config) {
-        this.forceService = forceService
-        this.config = config
-        packageXmlPath = "${config['build.dir']}/${PACKAGE_XML}"
-    }
+        super(forceService, config)
 
+        packageXmlPath = "$config.buildDir/$PACKAGE_XML"
+    }
 
     private getGroupedFileProperties() {
         def grouped = new GroupedFileProperties(
@@ -559,10 +618,14 @@ class MiscMetadataManifestBuilder {
         // these in package.xml for retrieve we can download them.
         grouped.addIfMissingStandard('Workflow', 'CaseComment')
 
-        grouped.filePropertiesByType
+        grouped.sort()
+
+        grouped.filePropertiesByType.findAll {
+            !isExcluded(it.key)
+        }
     }
 
-    def writePackageXml() {
+    void writeManifest() {
         def builder = new StreamingMarkupBuilder()
         builder.encoding = 'UTF-8'
 
@@ -580,7 +643,9 @@ class MiscMetadataManifestBuilder {
                     }
                 }
 
-                WILDCARD_TYPES.each { type ->
+                WILDCARD_TYPES.findAll {
+                    !isExcluded(it)
+                }.each { type ->
                     types {
                         members '*'
                         name type
@@ -600,7 +665,7 @@ class GroupedFileProperties {
     static final String NO_NAMESPACE = null;
     static final String STANDARD_NAMESPACE = '';
 
-    def filePropertiesByType = [:]
+    def filePropertiesByType = [:] as TreeMap
 
     GroupedFileProperties() {
     }
@@ -661,11 +726,17 @@ class GroupedFileProperties {
             it.namespacePrefix == namespacePrefix
         }
     }
+
+    void sort() {
+        filePropertiesByType.each { k, v ->
+            v.sort { FileProperties a, FileProperties b ->
+                a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
+            }
+        }
+    }
 }
 
-class ProfilesMetadataManifestBuilder {
-    def forceService
-    def config
+class ProfilesMetadataManifestBuilder extends ManifestBuilder {
     def groupedFileProps
 
     static final TYPES = [
@@ -686,8 +757,7 @@ class ProfilesMetadataManifestBuilder {
     ]
 
     ProfilesMetadataManifestBuilder(ForceService forceService, config) {
-        this.forceService = forceService
-        this.config = config
+        super(forceService, config)
     }
 
     private getGroupedFileProperties() {
@@ -703,21 +773,26 @@ class ProfilesMetadataManifestBuilder {
             // these in package.xml for retrieve we can download them.
             grouped.addIfMissingStandard('CustomObject', 'CaseComment')
 
+            grouped.sort()
 
-            grouped.filePropertiesByType.each { k, v ->
-                v.sort { a, b ->
-                    a.namespacePrefix <=> b.namespacePrefix ?: a.fullName <=> b.fullName
-                }
+            groupedFileProps = grouped.filePropertiesByType.findAll {
+                !isExcluded(it.key)
             }
 
-            groupedFileProps = grouped.filePropertiesByType
         }
 
         groupedFileProps
     }
 
+    void writeManifest() {
+        groupedFileProperties.each { type, fileProperties ->
+            writePackageXmlForType type, fileProperties
+        }
 
-    def writePackageXmlForType(type, fileProperties) {
+        writeBuildXml()
+    }
+
+    private void writePackageXmlForType(type, fileProperties) {
         def builder = new StreamingMarkupBuilder()
         builder.encoding = 'UTF-8'
 
@@ -770,20 +845,12 @@ class ProfilesMetadataManifestBuilder {
         XmlUtil.serialize(xml, writer)
     }
 
-    def writePackageXml() {
-        groupedFileProperties.each { type, fileProperties ->
-            writePackageXmlForType type, fileProperties
-        }
-
-        writeBuildXml()
-    }
-
     private profilePackageXmlPath(type) {
-        "${config['build.dir']}/profile-packages/${type}.xml"
+        "${config.buildDir}/profile-packages/${type}.xml"
     }
 
     private writeBuildXml() {
-        def writer = FileWriterFactory.create("${config['build.dir']}/profile-packages-target.xml")
+        def writer = FileWriterFactory.create("${config.buildDir}/profile-packages-target.xml")
         def builder = new MarkupBuilder(writer)
 
         def targetName = 'profilesPackageRetrieve'
@@ -794,7 +861,7 @@ class ProfilesMetadataManifestBuilder {
             target(name: targetName, depends: '-setUpMetadataDir') {
                 parallel(threadCount: 4) {
                     groupedFileProperties.each { type, fileProperties ->
-                        def retrieveTarget = "${config['build.dir']}/profile-packages-metadata/$type"
+                        def retrieveTarget = "${config.buildDir}/profile-packages-metadata/$type"
 
                         sequential {
                             forceService.withValidMetadataType(type) {
@@ -824,7 +891,7 @@ class XmlMergeTargetBuilder {
 
     XmlMergeTargetBuilder(config) {
         this.config = config
-        srcDir = "${config['build.dir']}/profile-packages-metadata"
+        srcDir = "${config.buildDir}/profile-packages-metadata"
     }
 
     private getData() {
@@ -847,11 +914,11 @@ class XmlMergeTargetBuilder {
     }
 
     private writeBuildXml() {
-        def writer = FileWriterFactory.create("${config['build.dir']}/profile-packages-merge-target.xml")
+        def writer = FileWriterFactory.create("${config.buildDir}/profile-packages-merge-target.xml")
         def builder = new MarkupBuilder(writer)
 
         def targetName = 'profilesPackageXmlMerge'
-        def metadataDir = "${config['build.dir']}/metadata"
+        def metadataDir = "${config.buildDir}/metadata"
 
         builder.project('default': targetName) {
             'import'(file: '../ant-includes/setup-target.xml')
@@ -896,12 +963,9 @@ class XmlMergeTargetBuilder {
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 static void main(args) {
-    def config = ['build.dir': 'build'];
-
     def cli = new CliBuilder(usage: 'force-meta-backup.groovy [options]')
     cli.with {
         b longOpt: 'build-dir', args: 1, 'build directory'
@@ -919,11 +983,9 @@ static void main(args) {
         return
     }
 
-    if (options.b) {
-        config['build.dir'] = options.b
-    }
+    def config = Configuration.build("build.properties", options)
 
-    def forceService = ForceServiceFactory.create('build.properties')
+    def forceService = ForceServiceFactory.create(config)
 
     if (options.'build-xml-merge-target') {
         def xmlMerge = new XmlMergeTargetBuilder(config)
@@ -932,17 +994,10 @@ static void main(args) {
     }
 
     // Default Action
-
-    def bulk = new BulkMetadataManifestBuilder(forceService, config)
-    bulk.writeBuildXml()
-    
-    def folders = new Folders(forceService, config)
-    folders.writeFolderBulkRetriveXml()
-    folders.writeFoldersPackageXml()
-
-    def misc = new MiscMetadataManifestBuilder(forceService, config)
-    misc.writePackageXml()
-
-    def profiles = new ProfilesMetadataManifestBuilder(forceService, config)
-    profiles.writePackageXml()
+    [
+        new BulkMetadataManifestBuilder(forceService, config),
+        new Folders(forceService, config),
+        new MiscMetadataManifestBuilder(forceService, config),
+        new ProfilesMetadataManifestBuilder(forceService, config)
+    ].each { it.writeManifest() }
 }
