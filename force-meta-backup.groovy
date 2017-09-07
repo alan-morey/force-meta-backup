@@ -295,9 +295,11 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'AuraDefinitionBundle',
         'AuthProvider',
         'AutoResponseRules',
+        'BrandingSet',
         'CallCenter',
         'CampaignInfluenceModel',
         'Certificate',
+        'ChatterExtensions',
         'CleanDataService',
         'Community',
         'CommunityTemplateDefinition',
@@ -342,6 +344,9 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'PlatformCachePartition',
         'Portal',
         'PostTemplate',
+        'ProfilePasswordPolicy',
+        'ProfileSessionSetting',
+        'PermissionSet',
         'Queue',
         'QuickAction',
         'RemoteSiteSetting',
@@ -751,11 +756,6 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
         'Layout'
     ]
 
-    static final PERMISSON_TYPES = [
-        'Profile',
-        'PermissionSet'
-    ]
-
     ProfilesMetadataManifestBuilder(ForceService forceService, config) {
         super(forceService, config)
     }
@@ -800,7 +800,7 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
             fp.fullName
         }
 
-        def WILDCARD_TYPES = [] + PERMISSON_TYPES;
+        def WILDCARD_TYPES = ['Profile']
 
         if (type == 'Layout') {
             // Note: Page Layout assignments require Layouts & RecordType to be retrieved with Profile 
@@ -894,23 +894,18 @@ class XmlMergeTargetBuilder {
         srcDir = "${config.buildDir}/profile-packages-metadata"
     }
 
-    private getData() {
-        def data = [
-            profiles: new TreeSet(),
-            permissionsets: new TreeSet()
-        ]
+    private getProfiles() {
+        def profiles = new TreeSet()
 
         def dir = new File(srcDir)
 
         dir.eachFileRecurse (FileType.FILES) { file ->
             if (file.name ==~ /.+\.profile$/) {
-                data.profiles << file.name
-            } else if (file.name ==~ /.+\.permissionset/) {
-                data.permissionsets <<  file.name
+                profiles << file.name
             }
         }
 
-        data
+        profiles
     }
 
     private writeBuildXml() {
@@ -924,18 +919,16 @@ class XmlMergeTargetBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: targetName) {
-                data.each { type, filenames ->
-                    def destDir = "$metadataDir/$type"
-                    mkdir(dir: destDir)
-                        
-                    parallel(threadCount: 4) {
-                        filenames.each { filename ->
-                            sequential {
-                                echo "Xml Merging: $filename"
-                                xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties') {
-                                    fileset(dir: srcDir) {
-                                        include(name: "**/$filename")
-                                    }
+                def destDir = "$metadataDir/profiles"
+                mkdir(dir: destDir)
+
+                parallel(threadCount: 4) {
+                    profiles.each { filename ->
+                        sequential {
+                            echo "Xml Merging: $filename"
+                            xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties') {
+                                fileset(dir: srcDir) {
+                                    include(name: "**/$filename")
                                 }
                             }
                         }
@@ -970,7 +963,7 @@ static void main(args) {
     cli.with {
         b longOpt: 'build-dir', args: 1, 'build directory'
         h longOpt: 'help', 'usage information'
-        _ longOpt: 'build-xml-merge-target', 'Builds XML Merge target for Profile and PermissionSets XML files'
+        _ longOpt: 'build-xml-merge-target', 'Builds XML Merge target for Profile XML files'
     }
 
     def options = cli.parse(args)
