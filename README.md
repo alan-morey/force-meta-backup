@@ -33,7 +33,7 @@ Groovy Version: 2.1.5 JVM: 1.7.0_51 Vendor: Oracle Corporation OS: Linux
 
 ## Usage
 - Copy `build.sample.properties` to `build.properties`
-- Edit `build.properties` and specify your Salesforce credentials
+- Edit `build.properties` and specify your Salesforce credentials. _**Note:** Credentials used should be those of an Adminstrator, to ensure the correct access for retrieving metadata components_.
 - Open command prompt and enter command `ant backupMetadata`
 
 The results will be downloaded to `build/metadata`
