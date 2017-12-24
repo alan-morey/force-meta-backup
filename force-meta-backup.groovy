@@ -1,36 +1,87 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.sdk', module='force-connector', version='22.0.9-BETA')
-@Grab(group='commons-lang', module='commons-lang', version='2.6')
+@Grab(group='com.force.api', module='force-partner-api', version='41.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='41.0.0')
 
-import com.force.sdk.connector.ForceConnectorConfig
-import com.force.sdk.connector.ForceServiceConnector
-
-import com.sforce.soap.partner.PartnerConnection
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
-
+import com.sforce.soap.metadata.MetadataConnection
+import com.sforce.soap.partner.Connector
+import com.sforce.soap.partner.PartnerConnection
 import com.sforce.ws.SoapFaultException
-import java.net.URLEncoder
-
+import com.sforce.ws.ConnectorConfig
 import groovy.io.FileType
 import groovy.xml.MarkupBuilder
 import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
+import java.net.URLEncoder
 
-
-class ForceService {
-    def forceServiceConnector
-    def metadata
-    def metadataTypes
+class ForceServiceConnector {
+    ConnectorConfig config
     def apiVersion
 
-    ForceService(serverUrl, username, password, apiVersion) {
-        def config = new ForceConnectorConfig()
-        config.connectionUrl = buildConnectionUrl serverUrl, username, password
+    PartnerConnection connection
+    MetadataConnection metadataConnection
 
-        forceServiceConnector = new ForceServiceConnector(config)
-
+    ForceServiceConnector(serverUrl, username, password, apiVersion) {
         this.apiVersion = apiVersion
+
+        this.config = new ConnectorConfig().with {
+            it.username = username
+            it.password = password
+            it.authEndpoint = partnerEndpoint(serverUrl)
+            it
+        }
+    }
+
+    PartnerConnection getConnection() {
+        if (connection == null) {
+            connection = Connector.newConnection(config)
+        }
+
+        connection
+    }
+
+    MetadataConnection getMetadataConnection() {
+        if (metadataConnection == null) {
+            def partnerConfig = getConnection().config
+
+            def metadataConfig = new ConnectorConfig().with {
+                it.sessionId = partnerConfig.sessionId
+                it.serviceEndpoint = metadataEndpoint(partnerConfig.serviceEndpoint)
+                it
+            }
+
+            metadataConnection = com.sforce.soap.metadata.Connector.newConnection(metadataConfig)
+        }
+
+        metadataConnection
+    }
+
+    public getApiVersion() {
+        apiVersion
+    }
+
+    private String metadataEndpoint(url) {
+        endpoint url, 'm', apiVersion
+    }
+
+    private String partnerEndpoint(url) {
+        endpoint url, 'u', apiVersion
+    }
+
+    private endpoint(url, apiType, apiVersion) {
+        def host = new URI(url).host
+        "https://$host/services/Soap/$apiType/$apiVersion"
+    }
+}
+
+class ForceService {
+    final ForceServiceConnector forceServiceConnector
+    def metadata
+    def metadataTypes
+
+    ForceService(ForceServiceConnector forceServiceConnector) {
+        this.forceServiceConnector = forceServiceConnector
     }
 
     def getConnection() {
@@ -41,12 +92,12 @@ class ForceService {
         forceServiceConnector.metadataConnection
     }
 
-    def getSessionId() {
-        forceServiceConnector.connection.sessionId
-    }
-
     def getOrganizationId() {
         forceServiceConnector.connection.userInfo.organizationId
+    }
+
+    Double getApiVersion() {
+        forceServiceConnector.apiVersion.toDouble()
     }
 
     def isValidMetadataType(type) {
@@ -101,7 +152,7 @@ class ForceService {
     def basicMetadata() {
         def metadata = [:]
 
-        def result = metadataConnection.describeMetadata(apiVersion.toDouble())
+        def result = metadataConnection.describeMetadata(apiVersion)
         if (result) {
             result.metadataObjects.each { obj ->
                 def name = obj.xmlName
@@ -134,7 +185,6 @@ class ForceService {
         def numQueries = queries.size
         def isLastQuery =  false
         def index = 0
-        def apiVersion = this.apiVersion.toDouble()
 
         def fileProperties = []
         while (numQueries > 0 && !isLastQuery) {
@@ -179,28 +229,18 @@ class ForceService {
         
         listMetadata(queries)
     }
-
-    private buildConnectionUrl = { serverUrl, username, password ->
-        def encode = { URLEncoder.encode(it, 'UTF-8') }
-
-        def host = new URI(serverUrl).host;
-        def query = [
-            user: username,
-            password: password
-        ].collect { k, v -> "${encode k}=${encode v}" }.join('&')
-
-        "force://$host?$query"
-    }
 }
 
 class ForceServiceFactory {
     static create(ConfigObject config) {
-        new ForceService(
+        def connector = new ForceServiceConnector(
             config.sf.serverurl.toString(),
             config.sf.username.toString(),
             config.sf.password.toString(),
             config.sf.antlib.version.toString()
         )
+
+        new ForceService(connector)
     }
 }
 
@@ -567,14 +607,14 @@ class Folders extends ManifestBuilder {
         def soql = "SELECT DeveloperName FROM EmailTemplate WHERE FolderId = '$forceService.organizationId'"
 
         fetchUnfiled soql
-    }
-        
+    }    
 
     private fetchUnfiledPublicReports() {
         def soql = "SELECT DeveloperName FROM Report WHERE OwnerId = '$forceService.organizationId'"
 
         fetchUnfiled soql
     }
+
     private fetchUnfiled(soql) {
         def sObjects = forceService.query soql
 
