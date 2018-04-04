@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='41.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='41.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='42.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='42.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -358,6 +358,10 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'DataCategoryGroup',
         'DelegateGroup',
         'DuplicateRule',
+        'EmailServicesFunction',
+        'EmbeddedServiceBranding',
+        'EmbeddedServiceConfig',
+        'EmbeddedServiceLiveAgent',
         'EntitlementProcess',
         'EntitlementTemplate',
         'EscalationRules',
