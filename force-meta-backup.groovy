@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='42.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='42.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='43.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='43.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -335,7 +335,10 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'AuraDefinitionBundle',
         'AuthProvider',
         'AutoResponseRules',
+        'Bot',
+        'BotVersion',
         'BrandingSet',
+        'CMSConnectSource',
         'CallCenter',
         'CampaignInfluenceModel',
         'CaseSubjectParticle',
@@ -361,6 +364,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'EmailServicesFunction',
         'EmbeddedServiceBranding',
         'EmbeddedServiceConfig',
+        'EmbeddedServiceFieldService',
         'EmbeddedServiceLiveAgent',
         'EntitlementProcess',
         'EntitlementTemplate',
@@ -384,6 +388,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'LiveChatButton',
         'LiveChatDeployment',
         'LiveChatSensitiveDataRule',
+        'MIDomain',
         'ManagedTopics',
         'MatchingRule',
         'MilestoneType',
