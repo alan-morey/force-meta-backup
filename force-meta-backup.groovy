@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='43.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='43.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='44.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='44.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -332,6 +332,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'ApprovalProcess',
         'ArticleType',
         'AssignmentRules',
+        'Audience',
         'AuraDefinitionBundle',
         'AuthProvider',
         'AutoResponseRules',
@@ -384,6 +385,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'HomePageLayout',
         'InstalledPackage',
         'KeywordList',
+        'LightningExperienceTheme',
         'LiveChatAgentConfig',
         'LiveChatButton',
         'LiveChatDeployment',
@@ -415,8 +417,6 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'SharingSet',
         'SiteDotCom',
         'Skill',
-        'StandardValueSet',
-        'StandardValueSetTranslation',
         'StaticResource',
         'SynonymDictionary',
         'Territory',
@@ -459,7 +459,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
                     }.each { type ->
                         forceService.withValidMetadataType(type) {
                             'sf:bulkRetrieve'(
-                                metadataType: it,
+                                metadataType: type,
                                 retrieveTarget: '${build.metadata.dir}',
                                 username: '${sf.username}',
                                 password: '${sf.password}',
@@ -566,8 +566,9 @@ class Folders extends ManifestBuilder {
 
                     allFolders.each { folderType, folders ->
                         folders.each { folderName ->
+                            def type = folderMetaTypeByFolderType[folderType]
                             'sf:bulkRetrieve'(
-                                metadataType: folderMetaTypeByFolderType[folderType],
+                                metadataType: type,
                                 containingFolder: folderName,
                                 retrieveTarget: '${build.metadata.dir}',
                                 username: '${sf.username}',
@@ -650,7 +651,8 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
     static final PACKAGE_XML = 'misc-package.xml'
 
     static final TYPES = [
-        'Letterhead'
+        'Letterhead',
+        'StandardValueSet',
     ]
 
     static final WILDCARD_TYPES = [ 
@@ -659,8 +661,71 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
         // to find that is in FlowDefinition and that would require parsing.
         //
         // Using * wildcard simplifiies the retrieval for Flows.
-        'Flow'
+        'Flow',
+
+        'StandardValueSetTranslation'
     ]
+
+    static final STANDARD_VALUE_SET_NAMES = [
+        'AccountContactMultiRoles',
+        'AccountContactRole',
+        'AccountOwnership',
+        'AccountRating',
+        'AccountType',
+        'AssetStatus',
+        'CampaignMemberStatus',
+        'CampaignStatus',
+        'CampaignType',
+        'CaseContactRole',
+        'CaseOrigin',
+        'CasePriority',
+        'CaseReason',
+        'CaseStatus',
+        'CaseType',
+        'ContactRole',
+        'ContractContactRole',
+        'ContractStatus',
+        'EntitlementType',
+        'EventSubject',
+        'EventType',
+        'FiscalYearPeriodName',
+        'FiscalYearPeriodPrefix',
+        'FiscalYearQuarterName',
+        'FiscalYearQuarterPrefix',
+        'IdeaCategory1',
+        'IdeaMultiCategory',
+        'IdeaStatus',
+        'IdeaThemeStatus',
+        'Industry',
+        'LeadSource',
+        'LeadStatus',
+        'OpportunityCompetitor',
+        'OpportunityStage',
+        'OpportunityType',
+        'OrderType',
+        'PartnerRole',
+        'Product2Family',
+        'QuestionOrigin1',
+        'QuickTextCategory',
+        'QuickTextChannel',
+        'QuoteStatus',
+        'RoleInTerritory2',
+        'SalesTeamRole',
+        'Salutation',
+        'ServiceContractApprovalStatus',
+        'SocialPostClassification',
+        'SocialPostEngagementLevel',
+        'SocialPostReviewedStatus',
+        'SolutionStatus',
+        'TaskPriority',
+        'TaskStatus',
+        'TaskSubject',
+        'TaskType',
+        'WorkOrderLineItemStatus',
+        'WorkOrderPriority',
+        'WorkOrderStatus'
+    ]
+
 
     MiscMetadataManifestBuilder(ForceService forceService, config) {
         super(forceService, config)
@@ -679,6 +744,13 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
         // calls for CustomObject and Workflow but if we explicitly put
         // these in package.xml for retrieve we can download them.
         grouped.addIfMissingStandard('Workflow', 'CaseComment')
+
+        // XXX - Salesforce does not return names for type StandardValueSet
+        // when we call listMetdata(). Adding hardcoded list of names
+        // as workaround
+        STANDARD_VALUE_SET_NAMES.each {
+            grouped.addIfMissingStandard('StandardValueSet', it)
+        }
 
         grouped.sort()
 
