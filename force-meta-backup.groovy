@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='44.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='44.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='45.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='45.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -355,6 +355,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'CspTrustedSite',
         'CustomApplicationComponent',
         'CustomFeedFilter',
+        'CustomHelpMenuSection',
         'CustomLabels',
         'CustomMetadata',
         'CustomPageWebLink',
@@ -366,6 +367,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'EmbeddedServiceBranding',
         'EmbeddedServiceConfig',
         'EmbeddedServiceFieldService',
+        'EmbeddedServiceFlowConfig',
         'EmbeddedServiceLiveAgent',
         'EntitlementProcess',
         'EntitlementTemplate',
@@ -386,6 +388,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'InstalledPackage',
         'KeywordList',
         'LeadConvertSettings',
+        'LightningComponentBundle',
         'LightningExperienceTheme',
         'LiveChatAgentConfig',
         'LiveChatButton',
@@ -402,12 +405,15 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'PathAssistant',
         'PermissionSet',
         'PlatformCachePartition',
+        'PlatformEventChannel',
         'Portal',
         'PostTemplate',
         'ProfilePasswordPolicy',
         'ProfileSessionSetting',
         'Queue',
         'QuickAction',
+        'RecommendationStrategy',
+        'RecordActionDeployment',
         'RemoteSiteSetting',
         'ReportType',
         'Role',
