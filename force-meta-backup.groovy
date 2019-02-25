@@ -592,7 +592,9 @@ class Folders extends ManifestBuilder {
     }
 
     private fetchAllFolders() {
-        def soql = "SELECT NamespacePrefix, DeveloperName, Type FROM Folder WHERE DeveloperName != '' ORDER BY Type, NamespacePrefix, DeveloperName"
+        def folderTypes = folderMetaTypeByFolderType.keySet()
+
+        def soql = "SELECT NamespacePrefix, DeveloperName, Type FROM Folder WHERE DeveloperName != '' AND Type IN ('${folderTypes.join("', '")}') ORDER BY Type, NamespacePrefix, DeveloperName"
         def sObjects = forceService.query soql
 
         def folders = [:]
