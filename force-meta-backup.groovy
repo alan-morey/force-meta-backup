@@ -385,6 +385,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'HomePageLayout',
         'InstalledPackage',
         'KeywordList',
+        'LeadConvertSettings',
         'LightningExperienceTheme',
         'LiveChatAgentConfig',
         'LiveChatButton',
