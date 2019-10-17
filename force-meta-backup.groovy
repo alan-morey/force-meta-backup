@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='46.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='46.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='47.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='47.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -323,6 +323,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
     static final BUILD_XML = 'bulk-retrievable-target.xml'
 
     static TYPES = [
+        'AccountRelationshipShareRule',
         'ActionLinkGroupTemplate',
         'AnalyticSnapshot',
         'AnimationRule',
@@ -330,6 +331,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'ApexTestSuite',
         'ApexTrigger',
         'AppMenu',
+        'AppointmentSchedulingPolicy',
         'ApprovalProcess',
         'ArticleType',
         'AssignmentRules',
@@ -344,6 +346,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'CampaignInfluenceModel',
         'CaseSubjectParticle',
         'Certificate',
+        'ChannelLayout',
         'ChatterExtension',
         'CleanDataService',
         'CMSConnectSource',
@@ -365,6 +368,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'DataCategoryGroup',
         'DelegateGroup',
         'DuplicateRule',
+        'EclairGeoData',
         'EmailServicesFunction',
         'EmbeddedServiceBranding',
         'EmbeddedServiceConfig',
@@ -374,7 +378,6 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'EntitlementProcess',
         'EntitlementTemplate',
         'EscalationRules',
-        'EclairGeoData',
         'EventDelivery',
         'EventSubscription',
         'ExperienceBundle',
@@ -383,6 +386,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'FeatureParameterDate',
         'FeatureParameterInteger',
         'FlexiPage',
+        'Flow',
         'FlowCategory',
         'FlowDefinition',
         'GlobalValueSet',
@@ -392,22 +396,27 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'HomePageLayout',
         'InstalledPackage',
         'KeywordList',
-        'LeadConvertSettings',
+        'LeadConvertSettings', 
+        'Letterhead',
         'LightningBolt',
         'LightningComponentBundle',
         'LightningExperienceTheme',
+        'LightningMessageChannel',
         'LiveChatAgentConfig',
         'LiveChatButton',
         'LiveChatDeployment',
         'LiveChatSensitiveDataRule',
+        'ManagedContentType',
         'ManagedTopics',
         'MatchingRule',
-        'MIDomain',
         'MilestoneType',
+        'MlDomain',
+        'MobileApplicationDetail',
         'ModerationRule',
         'NamedCredential',
         'Network',
         'NetworkBranding',
+        'OauthCustomScope',
         'OrchestrationContext',
         'OrchestrationContextEvents',
         'PathAssistant',
@@ -415,8 +424,11 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'PermissionSetGroup',
         'PlatformCachePartition',
         'PlatformEventChannel',
+        'PlatformEventChannelMember',
         'Portal',
         'PostTemplate',
+        'PresenceDeclineReason',
+        'PresenceUserConfig',
         'ProfilePasswordPolicy',
         'ProfileSessionSetting',
         'Prompt',
@@ -428,8 +440,11 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'RemoteSiteSetting',
         'ReportType',
         'Role',
+        'RoleOrTerritory',
         'SamlSsoConfig',
         'Scontrol',
+        'ServiceChannel',
+        'ServicePresenceStatus',
         'Settings',
         'SharingRules',
         'SharingSet',
@@ -441,22 +456,24 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'Territory2',
         'Territory2Model',
         'Territory2Rule',
-        'Territory2Settings',
         'Territory2Type',
         'TimeSheetTemplate',
         'TopicsForObjects',
         'TransactionSecurityPolicy',
+        'Translations',
         'UserCriteria',
         'WaveApplication',
         'WaveDashboard',
         'WaveDataflow',
         'WaveDataset',
         'WaveLens',
-        'Wavexmd',
+        'WaveTemplateBundle',
+        'WaveXmd',
+        'WorkDotComSettings',
         'Workflow',
         'WorkSkillRouting',
         'XOrgHub',
-        'XOrgHubSharedObject'
+        'XOrgHubSharedObject',
     ]
 
     BulkMetadataManifestBuilder(ForceService forceService, config) {
@@ -673,19 +690,12 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
     static final PACKAGE_XML = 'misc-package.xml'
 
     static final TYPES = [
-        'Letterhead',
+        'CustomPermission',
         'StandardValueSet',
     ]
 
-    static final WILDCARD_TYPES = [ 
-        // XXX Salesforce can't retrieve Flow by bulkRetrieve, the active
-        // version number need to be applied to the fullName. I think only way
-        // to find that is in FlowDefinition and that would require parsing.
-        //
-        // Using * wildcard simplifiies the retrieval for Flows.
-        'Flow',
-
-        'StandardValueSetTranslation'
+    static final WILDCARD_TYPES = [
+        'StandardValueSetTranslation',
     ]
 
     static final STANDARD_VALUE_SET_NAMES = [
@@ -901,7 +911,6 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
         'CustomApplication',
         'CustomObject',
         'CustomObjectTranslation',
-        'CustomPermission',
         'CustomTab',
         'ExternalDataSource',
         'Layout'
