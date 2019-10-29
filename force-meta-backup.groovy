@@ -336,7 +336,6 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'ArticleType',
         'AssignmentRules',
         'Audience',
-        'AuraDefinitionBundle',
         'AuthProvider',
         'AutoResponseRules',
         'Bot',
@@ -695,6 +694,7 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
     ]
 
     static final WILDCARD_TYPES = [
+        'AuraDefinitionBundle', 
         'StandardValueSetTranslation',
     ]
 
