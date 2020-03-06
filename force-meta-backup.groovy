@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='47.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='47.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='48.1.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='48.1.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -374,6 +374,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'EmbeddedServiceFieldService',
         'EmbeddedServiceFlowConfig',
         'EmbeddedServiceLiveAgent',
+        'EmbeddedServiceMenuSettings',
         'EntitlementProcess',
         'EntitlementTemplate',
         'EscalationRules',
@@ -419,6 +420,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'OrchestrationContext',
         'OrchestrationContextEvents',
         'PathAssistant',
+        'PaymentGatewayProvider',
         'PermissionSet',
         'PermissionSetGroup',
         'PlatformCachePartition',
@@ -436,6 +438,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'QuickAction',
         'RecommendationStrategy',
         'RecordActionDeployment',
+        'RedirectWhitelistUrl',
         'RemoteSiteSetting',
         'ReportType',
         'Role',
@@ -466,6 +469,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'WaveDataflow',
         'WaveDataset',
         'WaveLens',
+        'WaveRecipe',
         'WaveTemplateBundle',
         'WaveXmd',
         'WorkDotComSettings',
