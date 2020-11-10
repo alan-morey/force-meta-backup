@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='48.1.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='48.1.0')
+@Grab(group='com.force.api', module='force-partner-api', version='50.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='50.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -719,6 +719,7 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
         'AccountOwnership',
         'AccountRating',
         'AccountType',
+        'AppointmentSchedulingPolicy',
         'AssetStatus',
         'CampaignMemberStatus',
         'CampaignStatus',
@@ -733,9 +734,14 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
         'ContactRole',
         'ContractContactRole',
         'ContractStatus',
+        'DataSource',
+        'DataStreamDefinition',
+        'EmbeddedServiceFlowConfig',
+        'EmbeddedServiceMenuSettings',
         'EntitlementType',
         'EventSubject',
         'EventType',
+        'ExternalDataSource',
         'FiscalYearPeriodName',
         'FiscalYearPeriodPrefix',
         'FiscalYearQuarterName',
@@ -747,6 +753,8 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
         'Industry',
         'LeadSource',
         'LeadStatus',
+        'ManagedTopics',
+        'MktDataTranObject ',
         'OpportunityCompetitor',
         'OpportunityStage',
         'OpportunityType',
@@ -758,7 +766,6 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
         'QuickTextCategory',
         'QuickTextChannel',
         'QuoteStatus',
-        'RoleInTerritory2',
         'ResourceAbsenceType',
         'SalesTeamRole',
         'Salutation',
