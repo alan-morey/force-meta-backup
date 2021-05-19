@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='50.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='50.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='51.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='51.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -326,6 +326,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'AccountRelationshipShareRule',
         'ActionLinkGroupTemplate',
         'ActionPlanTemplate',
+        'AIApplication',
+        'AIApplicationConfig',
         'AnalyticSnapshot',
         'AnimationRule',
         'ApexComponent',
@@ -340,10 +342,13 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'Audience',
         'AuthProvider',
         'AutoResponseRules',
+        'BatchCalcJobDefinition',
+        'BatchProcessJobDefinition',
         'BlacklistedConsumer',
         'Bot',
         'BotVersion',
         'BrandingSet',
+        'BriefcaseDefinition',
         'BusinessProcessGroup',
         'CallCenter',
         'CallCoachingMediaProvider',
@@ -370,6 +375,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'CustomPageWebLink',
         'CustomSite',
         'DataCategoryGroup',
+        'DecisionTable',
+        'DecisionTableDatasetLink',
         'DelegateGroup',
         'DuplicateRule',
         'EclairGeoData',
@@ -416,6 +423,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'MatchingRule',
         'MilestoneType',
         'MlDomain',
+        'MLPredictionDefinition',
         'MobileApplicationDetail',
         'ModerationRule',
         'MyDomainDiscoverableLogin',
@@ -454,6 +462,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'SalesWorkQueueSettings',
         'SamlSsoConfig',
         'Scontrol',
+        'ServiceAISetupDefinition',
+        'ServiceAISetupField',
         'ServiceChannel',
         'ServicePresenceStatus',
         'Settings',
