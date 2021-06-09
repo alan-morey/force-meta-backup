@@ -1121,7 +1121,7 @@ class XmlMergeTargetBuilder {
                 def destDir = "$metadataDir/profiles"
                 mkdir(dir: destDir)
 
-                parallel(threadCount: 4) {
+                parallel(threadCount: 1) {
                     profiles.each { filename ->
                         sequential {
                             echo "Xml Merging: $filename"
