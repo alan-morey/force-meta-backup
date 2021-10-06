@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='51.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='51.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='52.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='52.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -397,16 +397,23 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'FeatureParameterBoolean',
         'FeatureParameterDate',
         'FeatureParameterInteger',
+        'FieldRestrictionRule',
         'FlexiPage',
         'Flow',
         'FlowCategory',
         'FlowDefinition',
+        'ForecastingSourceDefinition',
+        'ForecastingType',
+        'ForecastingTypeSource',
+        'FunctionReference',
         'GlobalValueSet',
         'GlobalValueSetTranslation',
         'Group',
         'HomePageComponent',
         'HomePageLayout',
+        'InboundNetworkConnection',
         'InstalledPackage',
+        'IPAddressRange',
         'KeywordList',
         'LeadConvertSettings', 
         'Letterhead',
@@ -422,6 +429,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'ManagedTopics',
         'MatchingRule',
         'MilestoneType',
+        'MktCalcInsightObjectDef',
         'MlDomain',
         'MLPredictionDefinition',
         'MobileApplicationDetail',
@@ -433,6 +441,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'NetworkBranding',
         'NotificationTypeConfig',
         'OauthCustomScope',
+        'OcrSampleDocument',
+        'OcrTemplate',
         'OrchestrationContext',
         'OrchestrationContextEvents',
         'PathAssistant',
@@ -457,6 +467,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'RedirectWhitelistUrl',
         'RemoteSiteSetting',
         'ReportType',
+        'RestrictionRule',
         'Role',
         'RoleOrTerritory',
         'SalesWorkQueueSettings',
