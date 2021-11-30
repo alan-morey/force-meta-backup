@@ -972,9 +972,15 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
 
     private getGroupedFileProperties() {
         if (groupedFileProps == null) {
-            def grouped = new GroupedFileProperties(
-                forceService.listMetadataForTypes(TYPES)
-            )
+            def listMetadata = forceService.listMetadataForTypes(TYPES)
+            listMetadata.removeAll { fileProperties ->
+                // Filter out ApexClasses from managed packages, these are all (hidden) anyway
+                // and in large Orgs can be more than 10000 components causing LIMIT_EXCEPTION
+                // on retrieval
+                fileProperties.type == 'ApexClass' && fileProperties.namespacePrefix != null
+            }
+    
+            def grouped = new GroupedFileProperties(listMetadata)
 
             // XXX - Hack to always retrieve the CaseComment SObject & Workflow.
             //
