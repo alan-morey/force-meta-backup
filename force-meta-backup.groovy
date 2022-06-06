@@ -330,10 +330,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'AIApplicationConfig',
         'AnalyticSnapshot',
         'AnimationRule',
-        'ApexComponent',
         'ApexEmailNotifications',
         'ApexTestSuite',
-        'ApexTrigger',
         'AppMenu',
         'AppointmentSchedulingPolicy',
         'ApprovalProcess',
@@ -418,7 +416,6 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'LeadConvertSettings', 
         'Letterhead',
         'LightningBolt',
-        'LightningComponentBundle',
         'LightningExperienceTheme',
         'LightningMessageChannel',
         'LiveChatAgentConfig',
@@ -730,7 +727,10 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
     ]
 
     static final WILDCARD_TYPES = [
+        'ApexTrigger',
+        'ApexComponent',
         'AuraDefinitionBundle', 
+        'LightningComponentBundle',
         'StandardValueSetTranslation',
     ]
 
