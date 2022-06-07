@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='52.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='52.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='53.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='53.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -373,6 +373,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'CustomPageWebLink',
         'CustomSite',
         'DataCategoryGroup',
+        'DataPackageKitDefinition',
+        'DataPackageKitObject',
         'DecisionTable',
         'DecisionTableDatasetLink',
         'DelegateGroup',
@@ -418,6 +420,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'LightningBolt',
         'LightningExperienceTheme',
         'LightningMessageChannel',
+        'LightningOnboardingConfig',
         'LiveChatAgentConfig',
         'LiveChatButton',
         'LiveChatDeployment',
@@ -427,10 +430,12 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'MatchingRule',
         'MilestoneType',
         'MktCalcInsightObjectDef',
+        'MLDataDefinition',
         'MlDomain',
         'MLPredictionDefinition',
         'MobileApplicationDetail',
         'ModerationRule',
+        'MutingPermissionSet',
         'MyDomainDiscoverableLogin',
         'NamedCredential',
         'NavigationMenu',
@@ -440,8 +445,11 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'OauthCustomScope',
         'OcrSampleDocument',
         'OcrTemplate',
+        'OmniInteractionAccessConfig',
+        'OmniInteractionConfig',
         'OrchestrationContext',
         'OrchestrationContextEvents',
+        'OutboundNetworkConnection',
         'PathAssistant',
         'PaymentGatewayProvider',
         'PermissionSet',
@@ -449,6 +457,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'PlatformCachePartition',
         'PlatformEventChannel',
         'PlatformEventChannelMember',
+        'PlatformEventSubscriberConfig',
         'Portal',
         'PostTemplate',
         'PresenceDeclineReason',
@@ -469,6 +478,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'RoleOrTerritory',
         'SalesWorkQueueSettings',
         'SamlSsoConfig',
+        'SchedulingRule',
         'Scontrol',
         'ServiceAISetupDefinition',
         'ServiceAISetupField',
@@ -727,8 +737,8 @@ class MiscMetadataManifestBuilder extends ManifestBuilder {
     ]
 
     static final WILDCARD_TYPES = [
-        'ApexTrigger',
         'ApexComponent',
+        'ApexTrigger',
         'AuraDefinitionBundle', 
         'LightningComponentBundle',
         'StandardValueSetTranslation',
