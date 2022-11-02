@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
-@Grab(group='com.force.api', module='force-partner-api', version='55.2.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='55.2.0')
+@Grab(group='com.force.api', module='force-partner-api', version='56.1.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='56.1.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -394,6 +394,8 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'DecisionTable',
         'DecisionTableDatasetLink',
         'DelegateGroup',
+        'DigitalExperienceBundle',
+        'DigitalExperienceConfig',
         'DuplicateRule',
         'EclairGeoData',
         'EmailServicesFunction',
@@ -410,8 +412,10 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'ESignatureConfig',
         'ESignatureEnvelopConfig',
         'EventDelivery',
+        'EventRelayConfig',
         'EventSubscription',
         'ExperienceBundle',
+        'ExternalCredential',
         'ExternalServiceRegistration',
         'FeatureParameterBoolean',
         'FeatureParameterDate',
@@ -453,7 +457,9 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'ManagedContentType',
         'ManagedContentTypeBundle',
         'ManagedTopics',
+        'MarketingAppExtAction',
         'MatchingRules',
+        'MessagingChannel',
         'MilestoneType',
         'MktCalcInsightObjectDef',
         'MktDataTranObject ',
@@ -487,6 +493,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
         'PlatformEventChannelMember',
         'PlatformEventSubscriberConfig',
         'Portal',
+        'PortalDelegablePermissionSet',
         'PostTemplate',
         'PresenceDeclineReason',
         'PresenceUserConfig',
