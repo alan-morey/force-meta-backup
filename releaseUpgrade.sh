@@ -38,7 +38,7 @@ DEFAULT_PROPERTIES_FILE="ant-includes/default.properties"
 GROOVY_FILE="force-meta-backup.groovy"
 
 sed -i "s/\(sf.antlib.version = \)$OLD_API_VERSION/\1$NEW_API_VERSION/g" $DEFAULT_PROPERTIES_FILE
-sed -i "s/\(version='\)$OLD_API_VERSION/\1$NEW_API_VERSION/g" $GROOVY_FILE
+sed -i "s/\(version='\)$MAJOR_VERSION_NUMBER\..*'/\1$NEW_API_VERSION.0'/g" $GROOVY_FILE
 
 ## Update 
 git rm $LIB_DIR/$OLD_JAR
