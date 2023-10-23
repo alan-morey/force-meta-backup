@@ -16,6 +16,8 @@ import groovy.xml.XmlUtil
 import java.net.URLEncoder
 
 class ForceServiceConnector {
+    static final DEFAULT_API_VERSION = determineDefaultApiVersion()
+
     ConnectorConfig config
     def apiVersion
 
@@ -72,6 +74,14 @@ class ForceServiceConnector {
     private endpoint(url, apiType, apiVersion) {
         def host = new URI(url).host
         "https://$host/services/Soap/$apiType/$apiVersion"
+    }
+
+    private static determineDefaultApiVersion() {
+        // END_POINT is a URI where the last path segment is the API version
+        Connector.END_POINT.toURI()
+            .getPath()
+            .split('/')
+            [-1]
     }
 }
 
@@ -237,7 +247,7 @@ class ForceServiceFactory {
             config.sf.serverurl.toString(),
             config.sf.username.toString(),
             config.sf.password.toString(),
-            config.sf.antlib.version.toString()
+            config.sf.apiVersion.toString()
         )
 
         new ForceService(connector)
@@ -245,46 +255,74 @@ class ForceServiceFactory {
 }
 
 class Configuration {
-    private static ConfigObject load(propFileName) {
-        def loadProperties = {
-            def props = new Properties()
-            def inputStream = getClass().getResourceAsStream(it)
-
-            props.load(inputStream)
-            inputStream.close()
-
-            new ConfigSlurper().parse(props)
+    static ConfigObject build(propFileName, cliOptions) {
+        final def getCliOptionOrDefault = { option, defaultValue -> 
+            cliOptions[option] ?: defaultValue
         }
 
-        def config = loadProperties 'ant-includes/default.properties'
-        config.merge(loadProperties(propFileName))
-    }
-
-    static ConfigObject build(propFileName, cliOptions) {
         ConfigObject config = new ConfigObject()
         config.putAll([
-            buildDir: 'build'
+            buildDir: getCliOptionOrDefault('build-dir', 'build')
         ])
-        config.merge(load(propFileName))
 
+        // Load properties files and CLI property overrides into config
+        [
+            loadPropertiesFromFile(propFileName),
+            cliOverrideProperties(cliOptions)
+        ].each {
+            config.merge(toConfigObject(it))
+        }
+
+        if (!config.sf?.apiVersion) {
+            // Set default apiVersion if not provided
+            config.sf.apiVersion = ForceServiceConnector.DEFAULT_API_VERSION
+        }
+
+        expandExcludeTypes(config)
+
+        config
+    }
+
+    private static Properties loadPropertiesFromFile(fileName) {
+        def props = new Properties()
+
+        new File(fileName).withInputStream {
+            props.load(it)
+        }
+
+        props
+    }
+
+    private static toConfigObject(Properties p) {
+        new ConfigSlurper().parse(p)
+    }
+
+    // Options provided with -Dproperty=value to script CLI
+    private static cliOverrideProperties(cliOptions) {
+        def props = new Properties();
+
+        if (cliOptions?.Ds) {
+            cliOptions?.Ds?.toSpreadMap().each { name, value ->
+                props[name] = value
+            }
+        }
+
+        props
+    }
+
+    private static expandExcludeTypes(config) {
+        final propertyName = 'excludeTypes'
         def excludeTypes = [] as Set
+
         if (config.sf.excludeTypes) {
             excludeTypes.addAll(config.sf.excludeTypes.split(',').collect {
                 it.trim().toLowerCase()
             })
 
-            config.sf.remove('excludeTypes')
+            config.sf.remove(propertyName)
         }
 
-        config.put('excludeTypes', excludeTypes)
-
-
-        if (cliOptions.'build-dir') {
-            config.buildDir = cliOptions.'build-dir'
-        }
-
-        config
-
+        config.put(propertyName, excludeTypes)
     }
 }
 
@@ -594,15 +632,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
                         !isExcluded(it)
                     }.each { type ->
                         forceService.withValidMetadataType(type) {
-                            'sf:bulkRetrieve'(
-                                metadataType: type,
-                                retrieveTarget: '${build.metadata.dir}',
-                                username: '${sf.username}',
-                                password: '${sf.password}',
-                                serverurl: '${sf.serverurl}',
-                                pollWaitMillis: '${sf.pollWaitMillis}',
-                                maxPoll: '${sf.maxPoll}'
-                            )
+                            'sfBulkRetrieve'(metadataType: type)
                         }
                     }
                 }
@@ -690,29 +720,12 @@ class Folders extends ManifestBuilder {
 
             target(name: 'bulkRetrieveFolders', depends: '-setUpMetadataDir') {
                 parallel(threadCount: 4) {
-                    'sf:retrieve'(
-                        unpackaged: packageXmlPath,
-                        retrieveTarget: '${build.metadata.dir}',
-                        username: '${sf.username}',
-                        password: '${sf.password}',
-                        serverurl: '${sf.serverurl}',
-                        pollWaitMillis: '${sf.pollWaitMillis}',
-                        maxPoll: '${sf.maxPoll}'
-                    )
+                    'sfRetrieve'(unpackaged: packageXmlPath)
 
                     allFolders.each { folderType, folders ->
                         folders.each { folderName ->
                             def type = folderMetaTypeByFolderType[folderType]
-                            'sf:bulkRetrieve'(
-                                metadataType: type,
-                                containingFolder: folderName,
-                                retrieveTarget: '${build.metadata.dir}',
-                                username: '${sf.username}',
-                                password: '${sf.password}',
-                                serverurl: '${sf.serverurl}',
-                                pollWaitMillis: '${sf.pollWaitMillis}',
-                                maxPoll: '${sf.maxPoll}'
-                            )
+                            'sfBulkRetrieveFolder'(metadataType: type, containingFolder: folderName)
                         }
                     }
                 }
@@ -1623,20 +1636,11 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
                     groupedFileProperties.each { type, fileProperties ->
                         def retrieveTarget = "${config.buildDir}/profile-packages-metadata/$type"
 
-                        sequential {
-                            forceService.withValidMetadataType(type) {
-                                mkdir(dir: retrieveTarget)
-
-                                'sf:retrieve'(
-                                    unpackaged: profilePackageXmlPath(type),
-                                    retrieveTarget: retrieveTarget,
-                                    username: '${sf.username}',
-                                    password: '${sf.password}',
-                                    serverurl: '${sf.serverurl}',
-                                    pollWaitMillis: '${sf.pollWaitMillis}',
-                                    maxPoll: '${sf.maxPoll}'
-                                )
-                            }
+                        forceService.withValidMetadataType(type) {
+                            'sfRetrieveToFolder'(
+                                unpackaged: profilePackageXmlPath(type),
+                                retrieveTarget: retrieveTarget
+                            )
                         }
                     }
                 }
@@ -1723,6 +1727,7 @@ static void main(args) {
     cli.with {
         b longOpt: 'build-dir', args: 1, 'build directory'
         h longOpt: 'help', 'usage information'
+        D(args: 2, valueSeparator: '=', argName: 'property=value', 'set property to override properties defined in build.properties file')
         _ longOpt: 'build-xml-merge-target', 'Builds XML Merge target for Profile XML files'
     }
 
@@ -1737,6 +1742,7 @@ static void main(args) {
     }
 
     def config = Configuration.build("build.properties", options)
+
 
     def forceService = ForceServiceFactory.create(config)
 
