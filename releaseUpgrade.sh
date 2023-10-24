@@ -33,16 +33,16 @@ mv $LIB_DIR/$JAR $LIB_DIR/$NEW_JAR
 rm $ANT_ZIP
 
 
-## Update API version in default properties and groovy script
-DEFAULT_PROPERTIES_FILE="ant-includes/default.properties"
+## Update API version in files
+BUILD_XML_FILE="build.xml"
 GROOVY_FILE="force-meta-backup.groovy"
 
-sed -i "s/\(sf.antlib.version = \)$OLD_API_VERSION/\1$NEW_API_VERSION/g" $DEFAULT_PROPERTIES_FILE
+sed -i "s/\(salesforce.antlib.version\" value=\"\)$OLD_API_VERSION\"/\1$NEW_API_VERSION\"/g" $BUILD_XML_FILE
 sed -i "s/\(version='\)$MAJOR_VERSION_NUMBER\..*'/\1$NEW_API_VERSION.0'/g" $GROOVY_FILE
 
 ## Update 
 git rm $LIB_DIR/$OLD_JAR
-git add $LIB_DIR/$NEW_JAR $DEFAULT_PROPERTIES_FILE $GROOVY_FILE
+git add $LIB_DIR/$NEW_JAR $BUILD_XML_FILE $GROOVY_FILE
 
 
 echo ""
@@ -51,7 +51,7 @@ echo ""
 echo "Salesforce Ant lib upgraded from $OLD_API_VERSION to $NEW_API_VERSION"
 echo ""
 echo "API version number updated in following files:"
-echo "  - $DEFAULT_PROPERTIES_FILE"
+echo "  - $BUILD_XML_FILE"
 echo "  - $GROOVY_FILE"
 echo ""
 echo "Changes have been staged in git for commit"
