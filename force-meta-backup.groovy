@@ -1,4 +1,3 @@
-#!/usr/bin/env groovy
 @Grab(group='com.force.api', module='force-partner-api', version='58.0.0')
 @Grab(group='com.force.api', module='force-metadata-api', version='58.0.0')
 
@@ -7,13 +6,13 @@ import com.sforce.soap.metadata.ListMetadataQuery
 import com.sforce.soap.metadata.MetadataConnection
 import com.sforce.soap.partner.Connector
 import com.sforce.soap.partner.PartnerConnection
-import com.sforce.ws.SoapFaultException
 import com.sforce.ws.ConnectorConfig
+import com.sforce.ws.SoapFaultException
 import groovy.io.FileType
 import groovy.xml.MarkupBuilder
 import groovy.xml.StreamingMarkupBuilder
 import groovy.xml.XmlUtil
-import java.net.URLEncoder
+import org.apache.tools.ant.Project
 
 class ForceServiceConnector {
     static final DEFAULT_API_VERSION = determineDefaultApiVersion()
@@ -24,15 +23,9 @@ class ForceServiceConnector {
     PartnerConnection connection
     MetadataConnection metadataConnection
 
-    ForceServiceConnector(serverUrl, username, password, apiVersion) {
-        this.apiVersion = apiVersion
-
-        this.config = new ConnectorConfig().with {
-            it.username = username
-            it.password = password
-            it.authEndpoint = partnerEndpoint(serverUrl)
-            it
-        }
+    ForceServiceConnector(ConnectorConfig config, String apiVersion) {
+        this.config = config;
+        this.apiVersion = apiVersion;
     }
 
     PartnerConnection getConnection() {
@@ -49,7 +42,7 @@ class ForceServiceConnector {
 
             def metadataConfig = new ConnectorConfig().with {
                 it.sessionId = partnerConfig.sessionId
-                it.serviceEndpoint = metadataEndpoint(partnerConfig.serviceEndpoint)
+                it.serviceEndpoint = metadataEndpoint(partnerConfig.serviceEndpoint, apiVersion)
                 it
             }
 
@@ -63,15 +56,15 @@ class ForceServiceConnector {
         apiVersion
     }
 
-    private String metadataEndpoint(url) {
+    private static String metadataEndpoint(url, apiVersion) {
         endpoint url, 'm', apiVersion
     }
 
-    private String partnerEndpoint(url) {
+    public static String partnerEndpoint(url, apiVersion) {
         endpoint url, 'u', apiVersion
     }
 
-    private endpoint(url, apiType, apiVersion) {
+    private static String endpoint(url, apiType, apiVersion) {
         def host = new URI(url).host
         "https://$host/services/Soap/$apiType/$apiVersion"
     }
@@ -81,33 +74,33 @@ class ForceServiceConnector {
         Connector.END_POINT.toURI()
             .getPath()
             .split('/')
-            [-1]
+            .getAt(-1)
     }
 }
 
 class ForceService {
-    final ForceServiceConnector forceServiceConnector
+    final ForceServiceConnector connector
     def metadata
     def metadataTypes
 
-    ForceService(ForceServiceConnector forceServiceConnector) {
-        this.forceServiceConnector = forceServiceConnector
+    ForceService(ForceServiceConnector connector) {
+        this.connector = connector
     }
 
     def getConnection() {
-        forceServiceConnector.connection
+        connector.connection
     }
 
     def getMetadataConnection() {
-        forceServiceConnector.metadataConnection
+        connector.metadataConnection
     }
 
     def getOrganizationId() {
-        forceServiceConnector.connection.userInfo.organizationId
+        connector.connection.userInfo.organizationId
     }
 
     Double getApiVersion() {
-        forceServiceConnector.apiVersion.toDouble()
+        connector.apiVersion.toDouble()
     }
 
     def isValidMetadataType(type) {
@@ -134,7 +127,7 @@ class ForceService {
         if (isValidMetadataType(type)) {
             closure(type)
         } else {
-            println "WARNING: $type is an invalid metadata type for this Organisation"
+            System.err.println "WARNING: $type is an invalid metadata type for this Organisation"
             null
         }
     }
@@ -192,7 +185,7 @@ class ForceService {
     def listMetadata(List<ListMetadataQuery> queries) {
         final MAX_QUERIES_PER_REQUEST = 3
 
-        def numQueries = queries.size
+        def numQueries = queries.size()
         def isLastQuery =  false
         def index = 0
 
@@ -211,7 +204,7 @@ class ForceService {
                 result = metadataConnection.listMetadata(requestQueries, apiVersion)
             } catch (SoapFaultException e) {
                 if (e.faultCode.localPart == 'INVALID_TYPE') {
-                    println "WARNING: ${e.message}"
+                    System.err.println "WARNING: ${e.message}"
                 } else {
                     throw e
                 }
@@ -242,87 +235,83 @@ class ForceService {
 }
 
 class ForceServiceFactory {
-    static create(ConfigObject config) {
-        def connector = new ForceServiceConnector(
-            config.sf.serverurl.toString(),
-            config.sf.username.toString(),
-            config.sf.password.toString(),
-            config.sf.apiVersion.toString()
-        )
+    static final USERNAME_PASSWORD_OR_SESSION_ID = 'You must specify the sf.username/sf.password property pair, or the sf.sessionId property but not both.'
 
-        new ForceService(connector)
+    static create(ConfigObject config) {
+        final flatConfig = config.flatten();
+
+        def (username, password, sessionId, serverUrl, apiVersion) = [
+            'sf.username',
+            'sf.password',
+            'sf.sessionId',
+            'sf.serverurl',
+            'sf.apiVersion'
+        ].collect { flatConfig.get(it)?.toString() }
+
+        def connectorConfig = new ConnectorConfig().with {
+            it.authEndpoint = ForceServiceConnector.partnerEndpoint(serverUrl, apiVersion)
+            it
+        }
+
+        if (sessionId) {
+            // Session ID flow
+            connectorConfig.sessionId = sessionId
+            connectorConfig.serviceEndpoint = connectorConfig.authEndpoint
+        } else if (username || password) {
+            // Username Password flow
+
+            if (!username || !password) {
+                throw new IllegalArgumentException('You must specify values for both sf.username and sf.password properties')
+            }
+
+            connectorConfig.username = username 
+            connectorConfig.password = password 
+        } else {
+            throw new IllegalArgumentException(USERNAME_PASSWORD_OR_SESSION_ID)
+        }
+
+        new ForceService(new ForceServiceConnector(connectorConfig, apiVersion))
     }
 }
 
 class Configuration {
-    static ConfigObject build(propFileName, cliOptions) {
-        final def getCliOptionOrDefault = { option, defaultValue -> 
-            cliOptions[option] ?: defaultValue
-        }
+    static ConfigObject fromAntProject(Project project) {
+        def properties = project.getProperties()
 
         ConfigObject config = new ConfigObject()
-        config.putAll([
-            buildDir: getCliOptionOrDefault('build-dir', 'build')
-        ])
+        config.buildDir = properties.get('build.dir')
+        config.excludeTypes = expandExcludeTypes(properties.remove('sf.excludeTypes'))
 
-        // Load properties files and CLI property overrides into config
-        [
-            loadPropertiesFromFile(propFileName),
-            cliOverrideProperties(cliOptions)
-        ].each {
-            config.merge(toConfigObject(it))
+        // We only want the sessionId or username/password but not both
+        if (properties.get('sf.sessionId') == null) {
+            properties.remove('sf.sessionId')
+        } else {
+            properties.remove('sf.username')
+            properties.remove('sf.password')
         }
 
-        if (!config.sf?.apiVersion) {
-            // Set default apiVersion if not provided
-            config.sf.apiVersion = ForceServiceConnector.DEFAULT_API_VERSION
-        }
-
-        expandExcludeTypes(config)
+        // Copy sf properties to config
+        final prefix = 'sf.'
+        properties.keySet()
+            .findAll { it.startsWith(prefix) }
+            .collect { it.replace(prefix, "") }
+            .each { property -> 
+                config.sf[property] = properties.get(prefix + property)
+            }
 
         config
     }
 
-    private static Properties loadPropertiesFromFile(fileName) {
-        def props = new Properties()
-
-        new File(fileName).withInputStream {
-            props.load(it)
-        }
-
-        props
-    }
-
-    private static toConfigObject(Properties p) {
-        new ConfigSlurper().parse(p)
-    }
-
-    // Options provided with -Dproperty=value to script CLI
-    private static cliOverrideProperties(cliOptions) {
-        def props = new Properties();
-
-        if (cliOptions?.Ds) {
-            cliOptions?.Ds?.toSpreadMap().each { name, value ->
-                props[name] = value
-            }
-        }
-
-        props
-    }
-
-    private static expandExcludeTypes(config) {
-        final propertyName = 'excludeTypes'
+    private static Set<String> expandExcludeTypes(String commaSeparatedExcludeTypes) {
         def excludeTypes = [] as Set
 
-        if (config.sf.excludeTypes) {
-            excludeTypes.addAll(config.sf.excludeTypes.split(',').collect {
+        if (commaSeparatedExcludeTypes) {
+            excludeTypes.addAll(commaSeparatedExcludeTypes.split(',').collect {
                 it.trim().toLowerCase()
             })
-
-            config.sf.remove(propertyName)
         }
 
-        config.put(propertyName, excludeTypes)
+        excludeTypes
     }
 }
 
@@ -725,7 +714,7 @@ class Folders extends ManifestBuilder {
                     allFolders.each { folderType, folders ->
                         folders.each { folderName ->
                             def type = folderMetaTypeByFolderType[folderType]
-                            'sfBulkRetrieveFolder'(metadataType: type, containingFolder: folderName)
+                            'sfBulkRetrieve'(metadataType: type, containingFolder: folderName)
                         }
                     }
                 }
@@ -1722,41 +1711,33 @@ class XmlMergeTargetBuilder {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void main(args) {
-    def cli = new CliBuilder(usage: 'force-meta-backup.groovy [options]')
-    cli.with {
-        b longOpt: 'build-dir', args: 1, 'build directory'
-        h longOpt: 'help', 'usage information'
-        D(args: 2, valueSeparator: '=', argName: 'property=value', 'set property to override properties defined in build.properties file')
-        _ longOpt: 'build-xml-merge-target', 'Builds XML Merge target for Profile XML files'
+class MetadataBackupTool {
+    final ForceService forceService;
+    final def config = config;
+
+    static MetadataBackupTool forProject(Project p) {
+        new MetadataBackupTool(Configuration.fromAntProject(p))
     }
 
-    def options = cli.parse(args)
-    if (!options) {
-        return
+    MetadataBackupTool(config) {
+        this.config = config
+        forceService = ForceServiceFactory.create(config)
     }
 
-    if (options.h) {
-        cli.usage()
-        return
+    String getSalesforceSessionId() {
+        "${forceService.connection.config.sessionId}"
     }
 
-    def config = Configuration.build("build.properties", options)
-
-
-    def forceService = ForceServiceFactory.create(config)
-
-    if (options.'build-xml-merge-target') {
-        def xmlMerge = new XmlMergeTargetBuilder(config)
-        xmlMerge.writeBuildXml()
-        return
+    void generateXmlMergeTarget() {
+        new XmlMergeTargetBuilder(config).writeBuildXml()
     }
 
-    // Default Action
-    [
-        new BulkMetadataManifestBuilder(forceService, config),
-        new Folders(forceService, config),
-        new MiscMetadataManifestBuilder(forceService, config),
-        new ProfilesMetadataManifestBuilder(forceService, config)
-    ].each { it.writeManifest() }
+    void generateMetadataRetrievalManifests() {
+        [
+            new BulkMetadataManifestBuilder(forceService, config),
+            new Folders(forceService, config),
+            new MiscMetadataManifestBuilder(forceService, config),
+            new ProfilesMetadataManifestBuilder(forceService, config)
+        ].each { it.writeManifest() }
+    }
 }

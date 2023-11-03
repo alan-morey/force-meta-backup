@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <!-- The version of the antlib jar in lib -->
-  <property name="salesforce.antlib.version" value="58.0" />
-  <property name="build.dir" value="build" />
 
   <target name="-setUp">
     <mkdir dir="${build.dir}" />
@@ -12,10 +9,47 @@
 
     <!-- If not already provided, default api version to ant lib version -->
     <property name="sf.apiVersion" value="${salesforce.antlib.version}" />
+
+    <prop-required property="sf.serverurl" />
+    <prop-not-blank property="sf.sessionId" />
+    <prop-not-blank property="sf.username" />
+    <prop-not-blank property="sf.password" />
   </target>
 
   <target name="-setUpMetadataDir" depends="-setUp">
-    <property name="build.metadata.dir" value="${build.dir}/metadata" />
     <mkdir dir="${build.metadata.dir}" />
   </target>
+
+  <macrodef name="prop-not-blank" description="Declare optional property, that must not be blank">
+    <attribute name="property" />
+
+    <sequential>
+      <fail message="When defined, the property @{property}, must not be empty or blank">
+        <condition>
+          <and>
+            <isset property="@{property}" />
+            <equals arg1="${@{property}}" arg2="" trim="true" />
+          </and>
+        </condition>
+      </fail>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="prop-required" description="Declare required property, that must not be blank">
+    <attribute name="property" />
+
+    <sequential>
+      <fail message="The property @{property} is required and must not be empty or blank">
+        <condition>
+          <or>
+            <not>
+              <isset property="@{property}" />
+            </not>
+            <equals arg1="${@{property}}" arg2="" trim="true" />
+          </or>
+        </condition>
+      </fail>
+    </sequential>
+  </macrodef>
+
 </project>

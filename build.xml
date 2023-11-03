@@ -1,18 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Force.com Metadata Backup" basedir="." xmlns:sf="antlib:com.salesforce">
-  <import file="ant-includes/setup-target.xml" />
+<project name="Salesforce Metadata Backup" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:if="ant:if" xmlns:unless="ant:unless">
 
-  <taskdef uri="antlib:com.salesforce" resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce-${salesforce.antlib.version}.jar" onerror="failall" />
+  <!-- The version of the antlib jar in lib -->
+  <property name="salesforce.antlib.version" value="58.0" />
+
+  <property name="build.dir" value="${basedir}/build" />
+  <property name="build.classes.dir" value="${build.dir}/classes" />
+  <property name="build.metadata.dir" value="${build.dir}/metadata" />
+
+  <import file="ant-includes/setup-target.xml" />
+  <include file="ant-includes/salesforce-tasks.xml" />
+  <include file="ant-includes/groovy-tasks.xml" />
+
   <taskdef name="xmlmerge" classname="ch.elca.el4j.services.xmlmerge.anttask.XmlMergeTask" classpath="lib/module-xml_merge-common-3.1.jar;lib/jdom-1.1.3.jar;lib/jaxen-1.1.1.jar;lib/slf4j-api-1.7.7.jar" />
 
-  <property environment="env" />
+  <target name="compileSrc" depends="clean,-setUp">
+    <mkdir dir="${build.classes.dir}" />
+    <groovyc srcdir="." destdir="${build.classes.dir}" />
+  </target>
 
   <target name="clean">
     <delete dir="${build.dir}" />
   </target>
 
-  <target name="generatePackageXmlAndBuildXml" depends="-setUp">
-    <forceMetaBackup />
+  <target name="-initSalesforceSession" depends="compileSrc">
+    <metadataBackupTool>
+      properties['sf.sessionId'] = metadataBackupTool.getSalesforceSessionId()
+    </metadataBackupTool>
+  </target>
+
+  <target name="generatePackageXmlAndBuildXml" depends="-initSalesforceSession">
+    <metadataBackupTool>
+      metadataBackupTool.generateMetadataRetrievalManifests()
+    </metadataBackupTool>
   </target>
 
   <target name="bulkRetrievable" depends="generatePackageXmlAndBuildXml, -setUpMetadataDir">
@@ -31,95 +51,32 @@
     <xmlMergeProfilesAndPermissions />
   </target>
 
-  <target name="backupMetadata" depends="clean,bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata">
-  </target>
+  <target
+    name="backupMetadata"
+    depends="clean,bulkRetrievable,bulkRetrieveFolders,retrieveMiscMetadata"
+    description="Retrieve metadata from Salesforce for backups"
+  />
 
   <macrodef name="xmlMergeProfilesAndPermissions">
     <sequential>
-      <forceMetaBackup args="--build-xml-merge-target" />
+      <metadataBackupTool>
+        metadataBackupTool.generateXmlMergeTarget()
+      </metadataBackupTool>
 
       <ant antfile="${build.dir}/profile-packages-merge-target.xml" />
     </sequential>
   </macrodef>
 
-  <macrodef name="forceMetaBackup">
-    <attribute name="args" default="" />
+  <macrodef name="metadataBackupTool" description="Execute metadata backup helper script">
+    <text name="script" optional="false" description="Groovy script to execute with the metadataBackupTool instance in scope" />
 
     <sequential>
-      <property name="force.meta.backup.script" value="force-meta-backup.groovy" />
+      <groovy classpath="${build.classes.dir}"><![CDATA[
+      def metadataBackupTool = new MetadataBackupTool(Configuration.fromAntProject(project))
 
-      <exec osfamily="unix" executable="${force.meta.backup.script}" resolveexecutable="true" failonerror="true">
-        <arg line="@{args} -Dsf.username=${sf.username} -Dsf.password=${sf.password} -Dsf.serverurl=${sf.serverurl} -Dsf.apiVersion=${sf.apiVersion}" />
-      </exec>
-
-      <exec osfamily="windows" executable="cmd" failonerror="true">
-        <arg line="/c ${env.GROOVY_HOME}/bin/groovy.bat ${force.meta.backup.script} @{args} -Dsf.username=${sf.username} -Dsf.password=${sf.password} -Dsf.serverurl=${sf.serverurl} -Dsf.apiVersion=${sf.apiVersion}" />
-      </exec>
+      @{script}
+      ]]></groovy>
     </sequential>
-  </macrodef>
-
-  <macrodef name="sfBulkRetrieve">
-    <attribute name="metadataType" />
-
-    <sequential>
-      <sf:bulkRetrieve
-        metadataType="@{metadataType}"
-        retrieveTarget="${build.metadata.dir}"
-        username="${sf.username}"
-        password="${sf.password}"
-        serverurl="${sf.serverurl}"
-        pollWaitMillis="${sf.pollWaitMillis}"
-        maxPoll="${sf.maxPoll}"
-      />
-    </sequential>
-  </macrodef>
-
-  <macrodef name="sfBulkRetrieveFolder">
-    <attribute name="metadataType" />
-    <attribute name="containingFolder" />
-
-    <sequential>
-      <sf:bulkRetrieve
-        metadataType="@{metadataType}"
-        containingFolder="@{containingFolder}"
-        retrieveTarget="${build.metadata.dir}"
-        username="${sf.username}"
-        password="${sf.password}"
-        serverurl="${sf.serverurl}"
-        pollWaitMillis="${sf.pollWaitMillis}"
-        maxPoll="${sf.maxPoll}"
-      />
-    </sequential>
-  </macrodef>
-
-  <macrodef name="sfRetrieve">
-    <attribute name="unpackaged" />
-    <attribute name="retrieveTarget" default="${build.metadata.dir}" />
-
-    <sequential>
-      <sf:retrieve
-        unpackaged="@{unpackaged}"
-        retrieveTarget="@{retrieveTarget}"
-        username="${sf.username}"
-        password="${sf.password}"
-        serverurl="${sf.serverurl}"
-        pollWaitMillis="${sf.pollWaitMillis}"
-        maxPoll="${sf.maxPoll}"
-      />
-    </sequential>
-
-  </macrodef>
-
-  <macrodef name="sfRetrieveToFolder">
-    <attribute name="unpackaged" />
-    <attribute name="retrieveTarget" />
-
-    <sequential>
-      <mkdir dir="@{retrieveTarget}" />
-
-      <sfRetrieve unpackaged="@{unpackaged}" retrieveTarget="@{retrieveTarget}" />
-    </sequential>
-
 
   </macrodef>
 

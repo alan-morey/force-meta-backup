@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="groovy.tasks" basedir="." >
+
+  <path id="groovy.class.path">
+    <fileset dir="lib/groovy" includes="*.jar" />
+  </path>
+
+  <taskdef name="groovy"
+    classname="org.codehaus.groovy.ant.Groovy"
+    classpathref="groovy.class.path" />
+
+  <taskdef name="groovyc"
+    classname="org.codehaus.groovy.ant.Groovyc"
+    classpathref="groovy.class.path" />
+
+</project>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="salesforce.tasks" basedir="." xmlns:sf="antlib:com.salesforce">
+  <!--
+    Tasks that wrap Ant Migraton Tool tasks
+
+    https://developer.salesforce.com/docs/atlas.en-us.daas.meta/daas/meta_development.htm
+  -->
+
+  <taskdef
+    uri="antlib:com.salesforce"
+    resource="com/salesforce/antlib.xml"
+    classpath="lib/ant-salesforce-${salesforce.antlib.version}.jar"
+    onerror="failall"
+  />
+
+  <macrodef name="sfRetrieveToFolder" description="Retreive metadata from Salesforce into specified folder">
+    <attribute name="unpackaged" description="The path of the manifest file that specifies the components to be retrieved"/>
+    <attribute name="retrieveTarget" description="The path of the folder into which the metadata files are retreived, this folder will be created"/>
+
+    <sequential>
+      <mkdir dir="@{retrieveTarget}" />
+
+      <sfRetrieve unpackaged="@{unpackaged}" retrieveTarget="@{retrieveTarget}" />
+    </sequential>
+
+  </macrodef>
+
+  <presetdef name="sfRetrieve" description="Retreive metadata from Salesforce into specified folder">
+    <sf:retrieve
+      sessionId="${sf.sessionId}"
+      serverurl="${sf.serverurl}"
+      retrieveTarget="${build.metadata.dir}"
+      pollWaitMillis="${sf.pollWaitMillis}"
+      maxPoll="${sf.maxPoll}"
+    />
+  </presetdef>
+
+  <presetdef name="sfBulkRetrieve" description="Bulk retrieve metadata from Salesforce">
+    <sf:bulkRetrieve
+      sessionId="${sf.sessionId}"
+      serverurl="${sf.serverurl}"
+      retrieveTarget="${build.metadata.dir}"
+      pollWaitMillis="${sf.pollWaitMillis}"
+      maxPoll="${sf.maxPoll}"
+    />
+  </presetdef>
+</project>
