@@ -9,7 +9,7 @@ The metadata is downloaded in 3 phases:
 - Queries are performed on the Salesforce Org. to determine all folders for Dashboards, Documents, Email Templates and Reports. Then `build.xml` and `package.xml` files are dynamically generated with this information. A bulk retrieve is then invoked for all folders and content.
 - The remaining miscellaneous metadata components that can not be retrived by bulk or by wildcard methds are downloaded by building a `package.xml` file that explicitly lists these items.
 
-It uses the [Ant Migration Tool](https://developer.salesforce.com/docs/atlas.en-us.daas.meta/daas/) along with Ant to retrieve metadata from the Org, Salesforce's [SOAP API](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/) and [Metadata API](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/) are used in a [Groovy](http://groovy.codehaus.org/) script to dynamically build up lists of components for downloading.
+It uses the [Ant Migration Tool](https://developer.salesforce.com/docs/atlas.en-us.daas.meta/daas/) along with Ant to retrieve metadata from the Org, Salesforce's [SOAP API](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/) and [Metadata API](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/) are used in a [Groovy](https://groovy-lang.org/) script to dynamically build up lists of components for downloading.
 
 Inspired by:
 
