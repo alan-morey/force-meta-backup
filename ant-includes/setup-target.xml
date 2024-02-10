@@ -10,6 +10,8 @@
     <!-- If not already provided, default api version to ant lib version -->
     <property name="sf.apiVersion" value="${salesforce.antlib.version}" />
 
+    <echo>Salesforce API Version: ${sf.apiVersion}</echo>
+
     <prop-required property="sf.serverurl" />
     <prop-not-blank property="sf.sessionId" />
     <prop-not-blank property="sf.username" />

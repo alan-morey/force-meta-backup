@@ -32,6 +32,7 @@
       retrieveTarget="${build.metadata.dir}"
       pollWaitMillis="${sf.pollWaitMillis}"
       maxPoll="${sf.maxPoll}"
+      apiVersion="${sf.apiVersion}"
     />
   </presetdef>
 
@@ -42,6 +43,7 @@
       retrieveTarget="${build.metadata.dir}"
       pollWaitMillis="${sf.pollWaitMillis}"
       maxPoll="${sf.maxPoll}"
+      apiVersion="${sf.apiVersion}"
     />
   </presetdef>
 </project>
