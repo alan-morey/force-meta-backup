@@ -1,5 +1,5 @@
-@Grab(group='com.force.api', module='force-partner-api', version='61.1.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='61.1.0')
+@Grab(group='com.force.api', module='force-partner-api', version='62.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='62.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -913,13 +913,13 @@ class XmlMergeTargetBuilder {
 
 class MetadataBackupTool {
     final ForceService forceService;
-    final def config = config;
+    final ConfigObject config;
 
     static MetadataBackupTool forProject(Project p) {
         new MetadataBackupTool(Configuration.fromAntProject(p))
     }
 
-    MetadataBackupTool(config) {
+    MetadataBackupTool(ConfigObject config) {
         this.config = config
         forceService = ForceServiceFactory.create(config)
     }
