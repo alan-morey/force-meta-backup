@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="force-api.tasks" basedir="." >
+
+  <macrodef name="forceApiVersion">
+    <attribute name="name" description="Name of property to assign version to" />
+
+    <sequential>
+      <groovy><![CDATA[
+def baseDir = properties['basedir']
+def scriptSource = new File("$baseDir/force-meta-backup.groovy").text
+def matches = scriptSource =~ /.*'force-partner-api'.+version='(\d+\.\d+\.\d+).*/
+
+def apiVersion = matches[0][1]
+def major = apiVersion[0..(apiVersion.indexOf('.') -1)]
+
+properties['@{name}'] = apiVersion
+properties['@{name}.major'] = major + '.0'
+]]></groovy>
+    </sequential>
+
+  </macrodef>
+
+</project>

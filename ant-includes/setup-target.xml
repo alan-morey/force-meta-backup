@@ -7,9 +7,10 @@
     <property file="build.properties" />
     <property file="ant-includes/default.properties" />
 
-    <!-- If not already provided, default api version to ant lib version -->
-    <property name="sf.apiVersion" value="${salesforce.antlib.version}" />
+    <forceApiVersion name="force.api.version" />
+    <property name="sf.apiVersion" value="${force.api.version.major}" />
 
+    <echo>Force API Version: ${force.api.version}</echo>
     <echo>Salesforce API Version: ${sf.apiVersion}</echo>
 
     <prop-required property="sf.serverurl" />

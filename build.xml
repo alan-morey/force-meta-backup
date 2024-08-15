@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Salesforce Metadata Backup" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:if="ant:if" xmlns:unless="ant:unless">
 
-  <!-- The version of the antlib jar in lib -->
-  <property name="salesforce.antlib.version" value="59.0" />
+  <include file="ant-includes/groovy-tasks.xml" />
+  <include file="ant-includes/force-api-tasks.xml" />
+  <include file="ant-includes/salesforce-tasks.xml" />
 
   <property name="build.dir" value="${basedir}/build" />
   <property name="build.classes.dir" value="${build.dir}/classes" />
   <property name="build.metadata.dir" value="${build.dir}/metadata" />
 
   <import file="ant-includes/setup-target.xml" />
-  <include file="ant-includes/salesforce-tasks.xml" />
-  <include file="ant-includes/groovy-tasks.xml" />
 
   <taskdef name="xmlmerge" classname="ch.elca.el4j.services.xmlmerge.anttask.XmlMergeTask" classpath="lib/module-xml_merge-common-3.1.jar;lib/jdom-1.1.3.jar;lib/jaxen-1.1.1.jar;lib/slf4j-api-1.7.7.jar" />
 

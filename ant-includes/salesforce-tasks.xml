@@ -6,6 +6,9 @@
     https://developer.salesforce.com/docs/atlas.en-us.daas.meta/daas/meta_development.htm
   -->
 
+  <!-- The version of the antlib jar in lib. There are no more releases after v59 -->
+  <property name="salesforce.antlib.version" value="59.0" />
+
   <taskdef
     uri="antlib:com.salesforce"
     resource="com/salesforce/antlib.xml"
