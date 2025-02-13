@@ -1,5 +1,5 @@
-@Grab(group='com.force.api', module='force-partner-api', version='62.0.0')
-@Grab(group='com.force.api', module='force-metadata-api', version='62.0.0')
+@Grab(group='com.force.api', module='force-partner-api', version='63.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='63.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
@@ -17,8 +17,6 @@ import src.StandardValueSetRegistry
 import src.BulkRetrieveMetadataTypeRegistry
 
 class ForceServiceConnector {
-    static final DEFAULT_API_VERSION = determineDefaultApiVersion()
-
     ConnectorConfig config
     def apiVersion
 
@@ -69,14 +67,6 @@ class ForceServiceConnector {
     private static String endpoint(url, apiType, apiVersion) {
         def host = new URI(url).host
         "https://$host/services/Soap/$apiType/$apiVersion"
-    }
-
-    private static determineDefaultApiVersion() {
-        // END_POINT is a URI where the last path segment is the API version
-        Connector.END_POINT.toURI()
-            .getPath()
-            .split('/')
-            .getAt(-1)
     }
 }
 

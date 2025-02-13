@@ -119,6 +119,7 @@ class BulkRetrieveMetadataTypeRegistry {
         'ExtlClntAppGlobalOauthSettings',
         'ExtlClntAppOauthConfigurablePolicies',
         'ExtlClntAppOauthSettings',
+        'ExtlClntAppSamlConfigurablePolicies',
         'FeatureParameterBoolean',
         'FeatureParameterDate',
         'FeatureParameterInteger',
