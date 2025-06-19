@@ -695,12 +695,11 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
         'ApexPage',
         'CustomApplication',
         'CustomObject',
-        'CustomObjectTranslation',
         'CustomPermission',
         'CustomTab',
         'ExternalDataSource',
-        'Layout'
-    ]
+        'Layout',
+      ]
 
     ProfilesMetadataManifestBuilder(ForceService forceService, config) {
         super(forceService, config)

@@ -69,6 +69,7 @@ class BulkRetrieveMetadataTypeRegistry {
         'CustomLabels',
         'CustomMetadata',
         'CustomNotificationType',
+        'CustomObjectTranslation',
         'CustomPageWebLink',
         'CustomSite',
         'DataCategoryGroup',
