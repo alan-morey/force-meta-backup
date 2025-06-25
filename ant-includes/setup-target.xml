@@ -11,7 +11,9 @@
     <property name="sf.apiVersion" value="${force.api.version.major}" />
 
     <echo>Force API Version: ${force.api.version}</echo>
-    <echo>Salesforce API Version: ${sf.apiVersion}</echo>
+    <echo>Salesforce API Version (sf.apiVersion): ${sf.apiVersion}</echo>
+    <echo>Bulk Retrieve Batch Size (sf.batchSize): ${sf.batchSize}</echo>
+    <echo>Bulk Retrieve Concurrency (sf.concurrency): ${sf.concurrency}</echo>
 
     <prop-required property="sf.serverurl" />
     <prop-not-blank property="sf.sessionId" />

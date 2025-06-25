@@ -334,6 +334,10 @@ abstract class ManifestBuilder {
     }
 
     abstract void writeManifest() 
+
+    def bulkThreadCount() {
+      config.sf.concurrency
+    }
 }
 
 class BulkMetadataManifestBuilder extends ManifestBuilder {
@@ -356,7 +360,7 @@ class BulkMetadataManifestBuilder extends ManifestBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: 'bulkRetrievable', depends: '-setUpMetadataDir') {
-                parallel(threadCount: 4) {
+                parallel(threadCount: bulkThreadCount()) {
                     TYPES.findAll {
                         !isExcluded(it)
                     }.each { type ->
@@ -448,7 +452,7 @@ class Folders extends ManifestBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: 'bulkRetrieveFolders', depends: '-setUpMetadataDir') {
-                parallel(threadCount: 4) {
+                parallel(threadCount: bulkThreadCount()) {
                     'sfRetrieve'(unpackaged: packageXmlPath)
 
                     allFolders.each { folderType, folders ->
@@ -810,7 +814,7 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
             'import'(file: '../ant-includes/setup-target.xml')
 
             target(name: targetName, depends: '-setUpMetadataDir') {
-                parallel(threadCount: 4) {
+                parallel(threadCount: bulkThreadCount()) {
                     groupedFileProperties.each { type, fileProperties ->
                         def retrieveTarget = "${config.buildDir}/profile-packages-metadata/$type"
 
@@ -864,14 +868,12 @@ class XmlMergeTargetBuilder {
                 def destDir = "$metadataDir/profiles"
                 mkdir(dir: destDir)
 
-                parallel(threadCount: 1) {
-                    profiles.each { filename ->
-                        sequential {
-                            echo "Xml Merging: $filename"
-                            xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties') {
-                                fileset(dir: srcDir) {
-                                    include(name: "**/$filename")
-                                }
+                profiles.each { filename ->
+                    sequential {
+                        echo "Xml Merging: $filename"
+                        xmlmerge(dest: "$destDir/$filename", conf: 'xmlmerge.properties') {
+                            fileset(dir: srcDir) {
+                                include(name: "**/$filename")
                             }
                         }
                     }
