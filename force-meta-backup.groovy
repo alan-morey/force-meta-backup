@@ -1,5 +1,5 @@
-@Grab(group='com.force.api', module='force-partner-api', version='64.0.3')
-@Grab(group='com.force.api', module='force-metadata-api', version='64.0.3')
+@Grab(group='com.force.api', module='force-partner-api', version='65.0.0')
+@Grab(group='com.force.api', module='force-metadata-api', version='65.0.0')
 
 import com.sforce.soap.metadata.FileProperties
 import com.sforce.soap.metadata.ListMetadataQuery
