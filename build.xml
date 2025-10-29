@@ -28,6 +28,16 @@
     </metadataBackupTool>
   </target>
 
+  <target name="connectionTest" depends="-initSalesforceSession">
+    <metadataBackupTool>
+      properties['getPartnerApiConfig'] = metadataBackupTool.getPartnerApiConfig()
+      properties['getMetadataApiConfig'] = metadataBackupTool.getMetadataApiConfig()
+    </metadataBackupTool>
+
+    <echo>${getPartnerApiConfig}</echo>
+    <echo>${getMetadataApiConfig}</echo>
+  </target>
+
   <target name="generatePackageXmlAndBuildXml" depends="-initSalesforceSession">
     <metadataBackupTool>
       metadataBackupTool.generateMetadataRetrievalManifests()

@@ -17,9 +17,12 @@ import src.StandardValueSetRegistry
 import src.BulkRetrieveMetadataTypeRegistry
 
 class ForceServiceConnector {
+    private static final SOAP_LOGIN_API_VERSION = '64.0'
+
     ConnectorConfig config
     def apiVersion
 
+    PartnerConnection loginConnection
     PartnerConnection connection
     MetadataConnection metadataConnection
 
@@ -28,9 +31,33 @@ class ForceServiceConnector {
         this.apiVersion = apiVersion;
     }
 
+    private PartnerConnection getLoginConnection() {
+        // Login connection will use v64 to for SOAP login
+
+        if (loginConnection == null) {
+            def loginConfig = new ConnectorConfig().with {
+                it.authEndpoint = partnerEndpoint(config.authEndpoint, SOAP_LOGIN_API_VERSION)
+                it
+            }
+
+            loginConnection = Connector.newConnection(loginConfig)
+        }
+
+        loginConnection
+    }
+
     PartnerConnection getConnection() {
         if (connection == null) {
-            connection = Connector.newConnection(config)
+            def loginConfig = getLoginConnection().config;
+
+            def partnerConfig = new ConnectorConfig().with {
+                it.sessionId = loginConfig.sessionId
+                it.serviceEndpoint = partnerEndpoint(config.serviceEndpoint, apiVersion)
+                it.manualLogin = true;
+                it
+            }
+
+            connection = Connector.newConnection(partnerConfig)
         }
 
         connection
@@ -38,11 +65,12 @@ class ForceServiceConnector {
 
     MetadataConnection getMetadataConnection() {
         if (metadataConnection == null) {
-            def partnerConfig = getConnection().config
+            def loginConfig = getLoginConnection().config;
 
             def metadataConfig = new ConnectorConfig().with {
-                it.sessionId = partnerConfig.sessionId
-                it.serviceEndpoint = metadataEndpoint(partnerConfig.serviceEndpoint, apiVersion)
+                it.sessionId = loginConfig.sessionId
+                it.serviceEndpoint = metadataEndpoint(config.serviceEndpoint, apiVersion)
+                it.manualLogin = true;
                 it
             }
 
@@ -242,16 +270,17 @@ class ForceServiceFactory {
 
         def connectorConfig = new ConnectorConfig().with {
             it.authEndpoint = ForceServiceConnector.partnerEndpoint(serverUrl, apiVersion)
+            it.serviceEndpoint = it.authEndpoint
             it
         }
 
         if (sessionId) {
             // Session ID flow
             connectorConfig.sessionId = sessionId
-            connectorConfig.serviceEndpoint = connectorConfig.authEndpoint
         } else if (username || password) {
-            // Username Password flow
+            // FIXME implement SessionRenewer
 
+            // Username Password flow
             if (!username || !password) {
                 throw new IllegalArgumentException('You must specify values for both sf.username and sf.password properties')
             }
@@ -917,6 +946,14 @@ class MetadataBackupTool {
 
     String getSalesforceSessionId() {
         "${forceService.connection.config.sessionId}"
+    }
+
+    String getPartnerApiConfig() {
+        "${forceService.connection.config}"
+    }
+
+    String getMetadataApiConfig() {
+        "${forceService.metadataConnection.config}"
     }
 
     void generateXmlMergeTarget() {
