@@ -17,9 +17,12 @@ import src.StandardValueSetRegistry
 import src.BulkRetrieveMetadataTypeRegistry
 
 class ForceServiceConnector {
+    private static final SOAP_LOGIN_API_VERSION = '64.0'
+
     ConnectorConfig config
     def apiVersion
 
+    PartnerConnection loginConnection
     PartnerConnection connection
     MetadataConnection metadataConnection
 
@@ -28,9 +31,26 @@ class ForceServiceConnector {
         this.apiVersion = apiVersion;
     }
 
+    private PartnerConnection getLoginConnection() {
+        // TODO: Upgrade to use External Client Apps or OAuth to authenticate
+        // https://help.salesforce.com/s/articleView?id=005132110&type=1
+
+        // Temporary solution: login connection will use API v64 for SOAP login
+
+        if (loginConnection == null) {
+            config.authEndpoint = partnerEndpoint(config.authEndpoint, SOAP_LOGIN_API_VERSION)
+            loginConnection = Connector.newConnection(config)
+        }
+
+        loginConnection
+
+    }
+
     PartnerConnection getConnection() {
         if (connection == null) {
-            connection = Connector.newConnection(config)
+            def partnerConfig = connectorConfigFromLoginConnection(ForceServiceConnector.&partnerEndpoint)
+
+            connection = Connector.newConnection(partnerConfig)
         }
 
         connection
@@ -38,18 +58,23 @@ class ForceServiceConnector {
 
     MetadataConnection getMetadataConnection() {
         if (metadataConnection == null) {
-            def partnerConfig = getConnection().config
-
-            def metadataConfig = new ConnectorConfig().with {
-                it.sessionId = partnerConfig.sessionId
-                it.serviceEndpoint = metadataEndpoint(partnerConfig.serviceEndpoint, apiVersion)
-                it
-            }
+            def metadataConfig = connectorConfigFromLoginConnection(ForceServiceConnector.&metadataEndpoint)
 
             metadataConnection = com.sforce.soap.metadata.Connector.newConnection(metadataConfig)
         }
 
         metadataConnection
+    }
+
+    private ConnectorConfig connectorConfigFromLoginConnection(serviceEndpointFactory) {
+        def loginConfig = getLoginConnection().config;
+
+        new ConnectorConfig().with {
+            it.sessionId = loginConfig.sessionId
+            it.serviceEndpoint = serviceEndpointFactory(loginConfig.serviceEndpoint, apiVersion)
+            it.manualLogin = true;
+            it
+        }
     }
 
     public getApiVersion() {
@@ -242,16 +267,16 @@ class ForceServiceFactory {
 
         def connectorConfig = new ConnectorConfig().with {
             it.authEndpoint = ForceServiceConnector.partnerEndpoint(serverUrl, apiVersion)
+            it.serviceEndpoint = it.authEndpoint
             it
         }
 
         if (sessionId) {
             // Session ID flow
             connectorConfig.sessionId = sessionId
-            connectorConfig.serviceEndpoint = connectorConfig.authEndpoint
+            connectorConfig.manualLogin = true;
         } else if (username || password) {
             // Username Password flow
-
             if (!username || !password) {
                 throw new IllegalArgumentException('You must specify values for both sf.username and sf.password properties')
             }
