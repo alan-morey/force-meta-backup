@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
+<project xmlns:if="ant:if" xmlns:unless="ant:unless">
 
   <target name="-setUp">
     <mkdir dir="${build.dir}" />
@@ -19,6 +19,11 @@
     <prop-not-blank property="sf.sessionId" />
     <prop-not-blank property="sf.username" />
     <prop-not-blank property="sf.password" />
+
+    <echo>Server URL (sf.serverurl): ${sf.serverurl}</echo>
+    <echo>Username (sf.username): ${sf.username}</echo>
+    <echo if:set="sf.password">Password (sf.password) property is set.</echo>
+    <echo if:set="sf.sessionId">Session ID (sf.sessionId) property is set.</echo>
   </target>
 
   <target name="-setUpMetadataDir" depends="-setUp">

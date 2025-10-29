@@ -32,30 +32,23 @@ class ForceServiceConnector {
     }
 
     private PartnerConnection getLoginConnection() {
-        // Login connection will use v64 to for SOAP login
+        // TODO: Upgrade to use External Client Apps or OAuth to authenticate
+        // https://help.salesforce.com/s/articleView?id=005132110&type=1
+
+        // Temporary solution: login connection will use API v64 for SOAP login
 
         if (loginConnection == null) {
-            def loginConfig = new ConnectorConfig().with {
-                it.authEndpoint = partnerEndpoint(config.authEndpoint, SOAP_LOGIN_API_VERSION)
-                it
-            }
-
-            loginConnection = Connector.newConnection(loginConfig)
+            config.authEndpoint = partnerEndpoint(config.authEndpoint, SOAP_LOGIN_API_VERSION)
+            loginConnection = Connector.newConnection(config)
         }
 
         loginConnection
+
     }
 
     PartnerConnection getConnection() {
         if (connection == null) {
-            def loginConfig = getLoginConnection().config;
-
-            def partnerConfig = new ConnectorConfig().with {
-                it.sessionId = loginConfig.sessionId
-                it.serviceEndpoint = partnerEndpoint(config.serviceEndpoint, apiVersion)
-                it.manualLogin = true;
-                it
-            }
+            def partnerConfig = connectorConfigFromLoginConnection(ForceServiceConnector.&partnerEndpoint)
 
             connection = Connector.newConnection(partnerConfig)
         }
@@ -65,19 +58,23 @@ class ForceServiceConnector {
 
     MetadataConnection getMetadataConnection() {
         if (metadataConnection == null) {
-            def loginConfig = getLoginConnection().config;
-
-            def metadataConfig = new ConnectorConfig().with {
-                it.sessionId = loginConfig.sessionId
-                it.serviceEndpoint = metadataEndpoint(config.serviceEndpoint, apiVersion)
-                it.manualLogin = true;
-                it
-            }
+            def metadataConfig = connectorConfigFromLoginConnection(ForceServiceConnector.&metadataEndpoint)
 
             metadataConnection = com.sforce.soap.metadata.Connector.newConnection(metadataConfig)
         }
 
         metadataConnection
+    }
+
+    private ConnectorConfig connectorConfigFromLoginConnection(serviceEndpointFactory) {
+        def loginConfig = getLoginConnection().config;
+
+        new ConnectorConfig().with {
+            it.sessionId = loginConfig.sessionId
+            it.serviceEndpoint = serviceEndpointFactory(loginConfig.serviceEndpoint, apiVersion)
+            it.manualLogin = true;
+            it
+        }
     }
 
     public getApiVersion() {
@@ -277,9 +274,8 @@ class ForceServiceFactory {
         if (sessionId) {
             // Session ID flow
             connectorConfig.sessionId = sessionId
+            connectorConfig.manualLogin = true;
         } else if (username || password) {
-            // FIXME implement SessionRenewer
-
             // Username Password flow
             if (!username || !password) {
                 throw new IllegalArgumentException('You must specify values for both sf.username and sf.password properties')
@@ -946,14 +942,6 @@ class MetadataBackupTool {
 
     String getSalesforceSessionId() {
         "${forceService.connection.config.sessionId}"
-    }
-
-    String getPartnerApiConfig() {
-        "${forceService.connection.config}"
-    }
-
-    String getMetadataApiConfig() {
-        "${forceService.metadataConnection.config}"
     }
 
     void generateXmlMergeTarget() {
