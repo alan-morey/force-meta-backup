@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="salesforce.tasks" basedir="." xmlns:sf="antlib:com.salesforce">
+<project name="salesforce.tasks" basedir="." xmlns:sf="antlib:com.salesforce" xmlns:if="ant:if" xmlns:unless="ant:unless">
   <!--
     Tasks that wrap Ant Migraton Tool tasks
 
@@ -39,15 +39,50 @@
     />
   </presetdef>
 
-  <presetdef name="sfBulkRetrieve" description="Bulk retrieve metadata from Salesforce">
-    <sf:bulkRetrieve
-      sessionId="${sf.sessionId}"
-      serverurl="${sf.serverurl}"
-      retrieveTarget="${build.metadata.dir}"
-      pollWaitMillis="${sf.pollWaitMillis}"
-      maxPoll="${sf.maxPoll}"
-      batchSize="${sf.batchSize}"
-      apiVersion="${sf.apiVersion}"
-    />
-  </presetdef>
+  <macrodef name="sfBulkRetrieve" description="Bulk retrieve metadata from Salesforce">
+    <attribute name="metadataType" />
+    <attribute name="containingFolder" default="" />
+
+    <attribute name="sessionId"        default="${sf.sessionId}" />
+    <attribute name="serverurl"        default="${sf.serverurl}" />
+    <attribute name="retrieveTarget"   default="${build.metadata.dir}" />
+    <attribute name="pollWaitMillis"   default="${sf.pollWaitMillis}" />
+    <attribute name="maxPoll"          default="${sf.maxPoll}" />
+    <attribute name="apiVersion"       default="${sf.apiVersion}" />
+    <attribute name="batchSize"        default="${sf.batchSize}" />
+
+    <sequential>
+      <local name="has.folder" />
+      <local name="local.batchSize" />
+
+      <condition property="has.folder">
+        <not><equals arg1="@{containingFolder}" arg2="" /></not>
+      </condition>
+
+      <condition property="local.batchSize" value="${sf.batchSize.@{metadataType}}">
+        <isset property="sf.batchSize.@{metadataType}" />
+      </condition>
+
+      <condition property="local.batchSize" value="@{batchSize}">
+        <not><isset property="local.batchSize" /></not>
+      </condition>
+
+      <presetdef name="sfBulkRetrievePreset">
+        <sf:bulkRetrieve
+          metadataType="@{metadataType}"
+          sessionId="@{sessionId}"
+          serverurl="@{serverurl}"
+          retrieveTarget="@{retrieveTarget}"
+          pollWaitMillis="@{pollWaitMillis}"
+          maxPoll="@{maxPoll}"
+          batchSize="${local.batchSize}"
+          apiVersion="@{apiVersion}"
+        />
+      </presetdef>
+
+      <sfBulkRetrievePreset if:set="has.folder" containingFolder="@{containingFolder}" />
+      <sfBulkRetrievePreset unless:set="has.folder" />
+
+    </sequential>
+  </macrodef>
 </project>
