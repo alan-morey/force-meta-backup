@@ -67,21 +67,28 @@
         <not><isset property="local.batchSize" /></not>
       </condition>
 
-      <presetdef name="sfBulkRetrievePreset">
-        <sf:bulkRetrieve
-          metadataType="@{metadataType}"
-          sessionId="@{sessionId}"
-          serverurl="@{serverurl}"
-          retrieveTarget="@{retrieveTarget}"
-          pollWaitMillis="@{pollWaitMillis}"
-          maxPoll="@{maxPoll}"
-          batchSize="${local.batchSize}"
-          apiVersion="@{apiVersion}"
-        />
-      </presetdef>
-
-      <sfBulkRetrievePreset if:set="has.folder" containingFolder="@{containingFolder}" />
-      <sfBulkRetrievePreset unless:set="has.folder" />
+      <sf:bulkRetrieve if:set="has.folder"
+        containingFolder="@{containingFolder}"
+        metadataType="@{metadataType}"
+        sessionId="@{sessionId}"
+        serverurl="@{serverurl}"
+        retrieveTarget="@{retrieveTarget}"
+        pollWaitMillis="@{pollWaitMillis}"
+        maxPoll="@{maxPoll}"
+        batchSize="${local.batchSize}"
+        apiVersion="@{apiVersion}"
+       />
+      
+      <sf:bulkRetrieve unless:set="has.folder"
+        metadataType="@{metadataType}"
+        sessionId="@{sessionId}"
+        serverurl="@{serverurl}"
+        retrieveTarget="@{retrieveTarget}"
+        pollWaitMillis="@{pollWaitMillis}"
+        maxPoll="@{maxPoll}"
+        batchSize="${local.batchSize}"
+        apiVersion="@{apiVersion}"
+      />
 
     </sequential>
   </macrodef>
