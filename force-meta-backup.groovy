@@ -786,13 +786,13 @@ class ProfilesMetadataManifestBuilder extends ManifestBuilder {
             // Note: Page Layout assignments require Layouts & RecordType to be retrieved with Profile 
             WILDCARD_TYPES << 'RecordType'
 
-            // Layouts in managed pacakges must have namespace prefix
+            // Layouts in managed packages must have namespace prefix
             resolveName = { FileProperties fp ->
                 if (fp.namespacePrefix) {
                     def namespace = fp.namespacePrefix + '__'
                     def seperator = '-'
 
-                    return fp.fullName.replace(seperator, seperator + namespace)
+                    return fp.fullName.replaceFirst(seperator, seperator + namespace)
                 }
 
                 fp.fullName
