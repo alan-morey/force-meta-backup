@@ -28,16 +28,32 @@
 
   </macrodef>
 
-  <presetdef name="sfRetrieve" description="Retreive metadata from Salesforce into specified folder">
-    <sf:retrieve
-      sessionId="${sf.sessionId}"
-      serverurl="${sf.serverurl}"
-      retrieveTarget="${build.metadata.dir}"
-      pollWaitMillis="${sf.pollWaitMillis}"
-      maxPoll="${sf.maxPoll}"
-      apiVersion="${sf.apiVersion}"
-    />
-  </presetdef>
+  <macrodef name="sfRetrieve" description="Retreive metadata from Salesforce into specified folder">
+    <attribute name="unpackaged" description="The path of the manifest file that specifies the components to be retrieved"/>
+
+    <attribute name="sessionId"        default="${sf.sessionId}" />
+    <attribute name="serverurl"        default="${sf.serverurl}" />
+    <attribute name="retrieveTarget"   default="${build.metadata.dir}" />
+    <attribute name="pollWaitMillis"   default="${sf.pollWaitMillis}" />
+    <attribute name="maxPoll"          default="${sf.maxPoll}" />
+    <attribute name="apiVersion"       default="${sf.apiVersion}" />
+
+    <sequential>
+      <retry retrycount="${sf.retrieve.retry.count}" retrydelay="${sf.retrieve.retry.delayMillis}">
+
+        <sf:retrieve
+          unpackaged="@{unpackaged}"
+          sessionId="@{sessionId}"
+          serverurl="@{serverurl}"
+          retrieveTarget="@{retrieveTarget}"
+          pollWaitMillis="@{pollWaitMillis}"
+          maxPoll="@{maxPoll}"
+          apiVersion="@{apiVersion}"
+        />
+
+      </retry>
+    </sequential>
+  </macrodef>
 
   <macrodef name="sfBulkRetrieve" description="Bulk retrieve metadata from Salesforce">
     <attribute name="metadataType" />
@@ -67,28 +83,34 @@
         <not><isset property="local.batchSize" /></not>
       </condition>
 
-      <sf:bulkRetrieve if:set="has.folder"
-        containingFolder="@{containingFolder}"
-        metadataType="@{metadataType}"
-        sessionId="@{sessionId}"
-        serverurl="@{serverurl}"
-        retrieveTarget="@{retrieveTarget}"
-        pollWaitMillis="@{pollWaitMillis}"
-        maxPoll="@{maxPoll}"
-        batchSize="${local.batchSize}"
-        apiVersion="@{apiVersion}"
-       />
-      
-      <sf:bulkRetrieve unless:set="has.folder"
-        metadataType="@{metadataType}"
-        sessionId="@{sessionId}"
-        serverurl="@{serverurl}"
-        retrieveTarget="@{retrieveTarget}"
-        pollWaitMillis="@{pollWaitMillis}"
-        maxPoll="@{maxPoll}"
-        batchSize="${local.batchSize}"
-        apiVersion="@{apiVersion}"
-      />
+      <retry retrycount="${sf.retrieve.retry.count}" retrydelay="${sf.retrieve.retry.delayMillis}">
+        <sequential>
+
+          <sf:bulkRetrieve if:set="has.folder"
+            containingFolder="@{containingFolder}"
+            metadataType="@{metadataType}"
+            sessionId="@{sessionId}"
+            serverurl="@{serverurl}"
+            retrieveTarget="@{retrieveTarget}"
+            pollWaitMillis="@{pollWaitMillis}"
+            maxPoll="@{maxPoll}"
+            batchSize="${local.batchSize}"
+            apiVersion="@{apiVersion}"
+          />
+          
+          <sf:bulkRetrieve unless:set="has.folder"
+            metadataType="@{metadataType}"
+            sessionId="@{sessionId}"
+            serverurl="@{serverurl}"
+            retrieveTarget="@{retrieveTarget}"
+            pollWaitMillis="@{pollWaitMillis}"
+            maxPoll="@{maxPoll}"
+            batchSize="${local.batchSize}"
+            apiVersion="@{apiVersion}"
+          />
+
+        </sequential>
+      </retry>
 
     </sequential>
   </macrodef>
